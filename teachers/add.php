@@ -8,6 +8,7 @@ $db = $database->getConnection();
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireCSRF();
     $teacher_id = $_POST['teacher_id'];
     $first_name = $_POST['first_name'];
     $last_name = $_POST['last_name'];
@@ -106,6 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="card">
                 <div class="card-body">
                     <form method="POST" enctype="multipart/form-data" class="form-grid">
+                        <?php echo csrfField(); ?>
                         <div class="form-section">
                             <h3>📋 Personal Information</h3>
                             

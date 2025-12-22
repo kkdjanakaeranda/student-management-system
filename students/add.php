@@ -9,7 +9,10 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $student_id = $_POST['student_id'];
+    requireCSRF();
+    
+    // Sanitize inputs
+    $student_id = sanitizeString($_POST['student_id']);
     $first_name = $_POST['first_name'];
     $last_name = $_POST['last_name'];
     $date_of_birth = $_POST['date_of_birth'];
@@ -106,6 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="card">
                 <div class="card-body">
                     <form method="POST" enctype="multipart/form-data" class="form-grid">
+                        <?php echo csrfField(); ?>
                         <div class="form-section">
                             <h3>📋 Personal Information</h3>
                             

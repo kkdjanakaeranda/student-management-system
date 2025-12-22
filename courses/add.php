@@ -9,6 +9,7 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireCSRF();
     $course_code = trim($_POST['course_code'] ?? '');
     $course_name = trim($_POST['course_name'] ?? '');
     $description = trim($_POST['description'] ?? '');
@@ -97,6 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="card-body" style="padding: 2rem;">
                     <form method="POST">
+                        <?php echo csrfField(); ?>
                         <!-- Course Code and Name -->
                         <div class="form-row">
                             <div class="form-group">
