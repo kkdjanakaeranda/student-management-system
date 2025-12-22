@@ -1,0 +1,146 @@
+<?php
+require_once '../config/config.php';
+requireAdmin();
+
+$database = new Database();
+$db = $database->getConnection();
+
+// Get courses
+$query = "SELECT * FROM courses WHERE status = 'active' ORDER BY course_name";
+$stmt = $db->prepare($query);
+$stmt->execute();
+$courses = $stmt->fetchAll();
+
+// Get teachers
+$query = "SELECT * FROM teachers WHERE status = 'active' ORDER BY first_name";
+$stmt = $db->prepare($query);
+$stmt->execute();
+$teachers = $stmt->fetchAll();
+
+$error = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $class_name = $_POST['class_name'];
+    $section = $_POST['section'];
+    $course_id = $_POST['course_id'] ?: null;
+    $teacher_id = $_POST['teacher_id'] ?: null;
+    $academic_year = $_POST['academic_year'];
+    $room_number = $_POST['room_number'];
+    
+    try {
+        $query = "INSERT INTO classes (class_name, section, course_id, teacher_id, academic_year, room_number) 
+                  VALUES (:class_name, :section, :course_id, :teacher_id, :academic_year, :room_number)";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':class_name', $class_name);
+        $stmt->bindParam(':section', $section);
+        $stmt->bindParam(':course_id', $course_id);
+        $stmt->bindParam(':teacher_id', $teacher_id);
+        $stmt->bindParam(':academic_year', $academic_year);
+        $stmt->bindParam(':room_number', $room_number);
+        $stmt->execute();
+        
+        header('Location: index.php');
+        exit();
+    } catch (Exception $e) {
+        $error = 'Error: ' .  $e->getMessage();
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Class - <?php echo SITE_NAME; ?></title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <?php include '../includes/header.php'; ?>
+    
+    <div class="container">
+        <?php include '../includes/sidebar.php'; ?>
+        
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <h1>➕ Add New Class</h1>
+                    <p>Fill in the class information below</p>
+                </div>
+                <a href="index.php" class="btn btn-secondary">← Back to List</a>
+            </div>
+            
+            <?php if ($error): ?>
+                <div class="alert alert-error"><?php echo $error; ?></div>
+            <?php endif; ?>
+            
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST" class="form-grid">
+                        <div class="form-section">
+                            <h3>📋 Class Information</h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="class_name">Class Name <span>*</span></label>
+                                    <input type="text" id="class_name" name="class_name" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="section">Section</label>
+                                    <input type="text" id="section" name="section">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="course_id">Course</label>
+                                    <select id="course_id" name="course_id">
+                                        <option value="">Select Course</option>
+                                        <?php foreach ($courses as $course): ?>
+                                            <option value="<?php echo $course['id']; ?>">
+                                                <?php echo htmlspecialchars($course['course_name']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="teacher_id">Class Teacher</label>
+                                    <select id="teacher_id" name="teacher_id">
+                                        <option value="">Select Teacher</option>
+                                        <?php foreach ($teachers as $teacher): ?>
+                                            <option value="<?php echo $teacher['id']; ?>">
+                                                <?php echo htmlspecialchars($teacher['first_name'] .  ' ' . $teacher['last_name']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="academic_year">Academic Year</label>
+                                    <input type="text" id="academic_year" name="academic_year" placeholder="e.g., 2024-2025">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="room_number">Room Number</label>
+                                    <input type="text" id="room_number" name="room_number">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">💾 Add Class</button>
+                            <a href="index.php" class="btn btn-secondary">❌ Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>
