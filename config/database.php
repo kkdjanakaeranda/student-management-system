@@ -1,10 +1,18 @@
 <?php
 class Database {
-    private $host = "localhost";
-    private $db_name = "student_management_system";
-    private $username = "root";
-    private $password = "";
+    private $host;
+    private $db_name;
+    private $username;
+    private $password;
     public $conn;
+
+    public function __construct() {
+        // Load from environment variables with fallback to defaults
+        $this->host = getenv('DB_HOST') ?: 'localhost';
+        $this->db_name = getenv('DB_NAME') ?: 'student_management_system';
+        $this->username = getenv('DB_USER') ?: 'root';
+        $this->password = getenv('DB_PASS') ?: '';
+    }
 
     public function getConnection() {
         $this->conn = null;
@@ -17,8 +25,17 @@ class Database {
             );
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            $this->conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
         } catch(PDOException $e) {
-            echo "Connection Error: " . $e->getMessage();
+            // Log error instead of displaying it
+            error_log("Database Connection Error: " . $e->getMessage());
+            
+            // Show user-friendly error
+            if (getenv('APP_ENV') === 'development') {
+                die("Database Connection Error: " . $e->getMessage());
+            } else {
+                die("Database connection failed. Please contact the administrator.");
+            }
         }
         
         return $this->conn;
