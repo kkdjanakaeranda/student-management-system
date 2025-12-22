@@ -68,6 +68,7 @@ if (isset($_GET['exam_id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireCSRF();
     $exam_id = $_POST['exam_id'];
     $grades_data = $_POST['grades'] ?? [];
     $remarks_data = $_POST['remarks'] ??  [];
@@ -242,6 +243,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     
                     <form method="POST" id="gradesForm">
+                        <?php echo csrfField(); ?>
                         <input type="hidden" name="exam_id" value="<?php echo $selected_exam; ?>">
                         
                         <div class="table-responsive">
@@ -373,9 +375,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (percentage >= 80) return 'A';
             if (percentage >= 70) return 'B+';
             if (percentage >= 60) return 'B';
-            if (percentage >= 50) return 'C+';
-            if (percentage >= 40) return 'C';
-            if (percentage >= 30) return 'D';
+            if (percentage >= 50) return 'C';
+            if (percentage >= 40) return 'D';
             return 'F';
         }
         

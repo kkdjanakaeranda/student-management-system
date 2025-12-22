@@ -1,0 +1,50 @@
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Uploads
+uploads/
+!uploads/.gitkeep
+
+# Composer
+/vendor/
+composer.lock
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+.directory
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+/tmp/
+
+# Cache
+cache/
+*.cache
+
+# Backup files
+*.bak
+*.backup
+*.swp
+*~
+
+# PHPUnit
+.phpunit.result.cache
+/phpunit.xml
+
+# Build artifacts
+/build/
+/dist/

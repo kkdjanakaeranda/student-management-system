@@ -23,6 +23,7 @@ $subjects = $stmt->fetchAll();
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireCSRF();
     $exam_name = $_POST['exam_name'];
     $exam_type = $_POST['exam_type'];
     $class_id = $_POST['class_id'];
@@ -82,6 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="card">
                 <div class="card-body">
                     <form method="POST" class="form-grid">
+                        <?php echo csrfField(); ?>
                         <div class="form-section">
                             <h3>📋 Exam Information</h3>
                             

@@ -42,6 +42,7 @@ if (isset($_GET['class_id']) && isset($_GET['date'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireCSRF();
     $class_id = $_POST['class_id'];
     $date = $_POST['date'];
     $attendance_data = $_POST['attendance'] ?? [];
@@ -135,6 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     <?php if (! empty($students)): ?>
                         <form method="POST">
+                        <?php echo csrfField(); ?>
                             <input type="hidden" name="class_id" value="<?php echo $selected_class; ?>">
                             <input type="hidden" name="date" value="<?php echo $selected_date; ?>">
                             

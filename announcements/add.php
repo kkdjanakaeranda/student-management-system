@@ -8,6 +8,7 @@ $db = $database->getConnection();
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireCSRF();
     $title = $_POST['title'];
     $content = $_POST['content'];
     $target_audience = $_POST['target_audience'];
@@ -62,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="card">
                 <div class="card-body">
                     <form method="POST" class="form-grid">
+                        <?php echo csrfField(); ?>
                         <div class="form-section">
                             <h3>📋 Announcement Details</h3>
                             

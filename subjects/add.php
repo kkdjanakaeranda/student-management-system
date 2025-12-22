@@ -20,6 +20,7 @@ $teachers = $stmt->fetchAll();
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireCSRF();
     $subject_code = $_POST['subject_code'];
     $subject_name = $_POST['subject_name'];
     $description = $_POST['description'];
@@ -75,6 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="card">
                 <div class="card-body">
                     <form method="POST" class="form-grid">
+                        <?php echo csrfField(); ?>
                         <div class="form-section">
                             <h3>📋 Subject Information</h3>
                             
