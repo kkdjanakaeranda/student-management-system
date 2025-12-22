@@ -11,7 +11,9 @@ class Database {
         $this->host = getenv('DB_HOST') ?: 'localhost';
         $this->db_name = getenv('DB_NAME') ?: 'student_management_system';
         $this->username = getenv('DB_USER') ?: 'root';
-        $this->password = getenv('DB_PASS') ?: '';
+        // For security, require password to be explicitly set (even if empty)
+        $dbPass = getenv('DB_PASS');
+        $this->password = ($dbPass !== false) ? $dbPass : '';
     }
 
     public function getConnection() {

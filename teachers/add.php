@@ -9,18 +9,20 @@ $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     requireCSRF();
-    $teacher_id = $_POST['teacher_id'];
-    $first_name = $_POST['first_name'];
-    $last_name = $_POST['last_name'];
-    $date_of_birth = $_POST['date_of_birth'];
-    $gender = $_POST['gender'];
-    $phone = $_POST['phone'];
-    $email = $_POST['email'];
-    $address = $_POST['address'];
-    $qualification = $_POST['qualification'];
-    $specialization = $_POST['specialization'];
-    $joining_date = $_POST['joining_date'];
-    $password = $_POST['password'];
+    
+    // Sanitize inputs
+    $teacher_id = sanitizeString($_POST['teacher_id']);
+    $first_name = sanitizeString($_POST['first_name']);
+    $last_name = sanitizeString($_POST['last_name']);
+    $date_of_birth = sanitizeString($_POST['date_of_birth']);
+    $gender = sanitizeString($_POST['gender']);
+    $phone = sanitizeString($_POST['phone']);
+    $email = sanitizeEmail($_POST['email']);
+    $address = sanitizeString($_POST['address']);
+    $qualification = sanitizeString($_POST['qualification']);
+    $specialization = sanitizeString($_POST['specialization']);
+    $joining_date = sanitizeString($_POST['joining_date']);
+    $password = $_POST['password']; // Don't sanitize passwords
     
     $photo_name = '';
     if (isset($_FILES['photo']) && $_FILES['photo']['error'] === 0) {

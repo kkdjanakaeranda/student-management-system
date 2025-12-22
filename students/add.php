@@ -13,17 +13,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Sanitize inputs
     $student_id = sanitizeString($_POST['student_id']);
-    $first_name = $_POST['first_name'];
-    $last_name = $_POST['last_name'];
-    $date_of_birth = $_POST['date_of_birth'];
-    $gender = $_POST['gender'];
-    $phone = $_POST['phone'];
-    $address = $_POST['address'];
-    $guardian_name = $_POST['guardian_name'];
-    $guardian_phone = $_POST['guardian_phone'];
-    $admission_date = $_POST['admission_date'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+    $first_name = sanitizeString($_POST['first_name']);
+    $last_name = sanitizeString($_POST['last_name']);
+    $date_of_birth = sanitizeString($_POST['date_of_birth']);
+    $gender = sanitizeString($_POST['gender']);
+    $phone = sanitizeString($_POST['phone']);
+    $address = sanitizeString($_POST['address']);
+    $guardian_name = sanitizeString($_POST['guardian_name']);
+    $guardian_phone = sanitizeString($_POST['guardian_phone']);
+    $admission_date = sanitizeString($_POST['admission_date']);
+    $email = sanitizeEmail($_POST['email']);
+    $password = $_POST['password']; // Don't sanitize passwords
     
     $photo_name = '';
     if (isset($_FILES['photo']) && $_FILES['photo']['error'] === 0) {

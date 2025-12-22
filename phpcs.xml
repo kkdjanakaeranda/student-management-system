@@ -6,7 +6,6 @@
     <rule ref="PSR12"/>
 
     <!-- Paths to check -->
-    <file>src</file>
     <file>config</file>
 
     <!-- Exclude patterns -->

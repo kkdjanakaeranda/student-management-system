@@ -217,7 +217,12 @@ function sanitizeEmail($email) {
  * Sanitize integer
  */
 function sanitizeInt($input) {
-    return filter_var($input, FILTER_SANITIZE_NUMBER_INT);
+    $sanitized = filter_var($input, FILTER_SANITIZE_NUMBER_INT);
+    // Validate that result is actually an integer
+    if (filter_var($sanitized, FILTER_VALIDATE_INT) === false) {
+        return 0;
+    }
+    return (int)$sanitized;
 }
 
 /**
