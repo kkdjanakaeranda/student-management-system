@@ -81,10 +81,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </button>
             </form>
             
-            <div class="login-footer">
-                <p><strong>Demo Credentials:</strong></p>
-                <p>Username: <strong>admin</strong> | Password: <strong>admin123</strong></p>
-            </div>
         </div>
     </div>
     
