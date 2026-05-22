@@ -1,84 +1,126 @@
 <?php
+// attendance/mark.php — enrollment-enforced replacement
 require_once '../config/config.php';
+requireLogin();
+
 if (!hasRole('admin') && !hasRole('teacher')) {
     header('Location: ../dashboard.php');
     exit();
 }
 
 $database = new Database();
-$db = $database->getConnection();
+$db       = $database->getConnection();
+$tid      = (int) ($_SESSION['teacher_id'] ?? 0);
+$isAdmin  = hasRole('admin');
 
-// Get classes
-$query = "SELECT * FROM classes WHERE status = 'active' ORDER BY class_name";
-$stmt = $db->prepare($query);
-$stmt->execute();
-$classes = $stmt->fetchAll();
+// ── Load classes scoped to this teacher (admin sees all) ──────────────────
+$classStmt = $db->prepare(
+    "SELECT c.id, c.name, c.section
+     FROM   classes c
+     WHERE  c.status = 'active'
+       AND  (:is_admin = 1 OR c.teacher_id = :tid)
+     ORDER  BY c.name"
+);
+$classStmt->execute([':is_admin' => (int)$isAdmin, ':tid' => $tid]);
+$classes = $classStmt->fetchAll();
 
-$students = [];
-$selected_class = null;
-$selected_date = date('Y-m-d');
+$classId      = (int) ($_GET['class_id'] ?? ($_POST['class_id'] ?? 0));
+$selectedDate = $_POST['attendance_date'] ?? $_GET['date'] ?? date('Y-m-d');
+$message      = '';
+$messageType  = '';
 
-if (isset($_GET['class_id']) && isset($_GET['date'])) {
-    $selected_class = $_GET['class_id'];
-    $selected_date = $_GET['date'];
-    
-    // Get students in this class
-    $query = "SELECT s.* FROM students s 
-              JOIN enrollments e ON s.id = e.student_id 
-              WHERE e.class_id = :class_id AND s.status = 'active'
-              ORDER BY s.first_name";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':class_id', $selected_class);
-    $stmt->execute();
-    $students = $stmt->fetchAll();
-    
-    // Get existing attendance
-    $query = "SELECT * FROM attendance WHERE class_id = :class_id AND date = :date";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':class_id', $selected_class);
-    $stmt->bindParam(':date', $selected_date);
-    $stmt->execute();
-    $existing_attendance = $stmt->fetchAll(PDO::FETCH_GROUP|PDO::FETCH_UNIQUE);
+// Verify teacher owns this class (skip for admin)
+if ($classId && !$isAdmin) {
+    $ownStmt = $db->prepare(
+        "SELECT id FROM classes WHERE id=:id AND teacher_id=:tid LIMIT 1"
+    );
+    $ownStmt->execute([':id' => $classId, ':tid' => $tid]);
+    if (!$ownStmt->fetch()) {
+        $message     = 'You do not have permission to mark attendance for this class.';
+        $messageType = 'error';
+        $classId     = 0;
+    }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $class_id = $_POST['class_id'];
-    $date = $_POST['date'];
-    $attendance_data = $_POST['attendance'] ?? [];
-    
-    try {
+// ── Handle POST — save attendance ─────────────────────────────────────────
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $classId && $message === '') {
+    verifyCsrf();
+
+    $date     = $_POST['attendance_date'] ?? date('Y-m-d');
+    $records  = $_POST['attendance'] ?? [];   // [student_id => status]
+
+    if (empty($records)) {
+        $message     = 'No attendance data submitted.';
+        $messageType = 'error';
+    } else {
+        // Delete existing records for this class+date then re-insert (idempotent)
         $db->beginTransaction();
-        
-        // Delete existing attendance for this class and date
-        $query = "DELETE FROM attendance WHERE class_id = :class_id AND date = : date";
-        $stmt = $db->prepare($query);
-        $stmt->bindParam(':class_id', $class_id);
-        $stmt->bindParam(':date', $date);
-        $stmt->execute();
-        
-        // Insert new attendance records
-        foreach ($attendance_data as $student_id => $data) {
-            $status = $data['status'];
-            $remarks = $data['remarks'] ?? '';
-            
-            $query = "INSERT INTO attendance (student_id, class_id, date, status, remarks) 
-                      VALUES (:student_id, :class_id, :date, :status, :remarks)";
-            $stmt = $db->prepare($query);
-            $stmt->bindParam(':student_id', $student_id);
-            $stmt->bindParam(':class_id', $class_id);
-            $stmt->bindParam(':date', $date);
-            $stmt->bindParam(':status', $status);
-            $stmt->bindParam(':remarks', $remarks);
-            $stmt->execute();
+        try {
+            $delStmt = $db->prepare(
+                "DELETE FROM attendance WHERE class_id=:cid AND date=:date"
+            );
+            $delStmt->execute([':cid' => $classId, ':date' => $date]);
+
+            $insStmt = $db->prepare(
+                "INSERT INTO attendance (student_id, class_id, date, status, created_by)
+                 VALUES (:sid, :cid, :date, :status, :uid)"
+            );
+
+            foreach ($records as $studentId => $status) {
+                $studentId = (int) $studentId;
+                $status    = in_array($status, ['present','absent','late','excused'], true)
+                             ? $status : 'absent';
+                $insStmt->execute([
+                    ':sid'    => $studentId,
+                    ':cid'    => $classId,
+                    ':date'   => $date,
+                    ':status' => $status,
+                    ':uid'    => $_SESSION['user_id'],
+                ]);
+            }
+            $db->commit();
+            $message     = 'Attendance saved successfully for ' . date('M d, Y', strtotime($date)) . '.';
+            $messageType = 'success';
+        } catch (Exception $e) {
+            $db->rollBack();
+            $message     = 'Failed to save attendance. Please try again.';
+            $messageType = 'error';
         }
-        
-        $db->commit();
-        header('Location: index.php');
-        exit();
-    } catch (Exception $e) {
-        $db->rollBack();
-        $error = 'Error: ' . $e->getMessage();
     }
+}
+
+// ── Load enrolled students for selected class ──────────────────────────────
+$students = [];
+if ($classId) {
+    // ONLY students enrolled in this class — enrollment check enforced here
+    $stuStmt = $db->prepare(
+        "SELECT s.id, s.first_name, s.last_name, s.student_id AS reg_no,
+                COALESCE(a.status, '') AS existing_status
+         FROM   enrollments e
+         JOIN   students    s ON s.id = e.student_id
+         LEFT JOIN attendance a
+               ON  a.student_id = s.id
+               AND a.class_id   = :cid
+               AND a.date       = :date
+         WHERE  e.class_id = :cid2
+           AND  e.status   = 'active'
+           AND  s.status   = 'active'
+         ORDER  BY s.last_name, s.first_name"
+    );
+    $stuStmt->execute([
+        ':cid'   => $classId,
+        ':date'  => $selectedDate,
+        ':cid2'  => $classId,
+    ]);
+    $students = $stuStmt->fetchAll();
+}
+
+// ── Load selected class details ────────────────────────────────────────────
+$selectedClass = null;
+if ($classId) {
+    $scStmt = $db->prepare("SELECT * FROM classes WHERE id=:id LIMIT 1");
+    $scStmt->execute([':id' => $classId]);
+    $selectedClass = $scStmt->fetch();
 }
 ?>
 <!DOCTYPE html>
@@ -86,115 +128,139 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mark Attendance - <?php echo SITE_NAME; ?></title>
+    <title>Mark Attendance — <?php echo SITE_NAME; ?></title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <?php include '../includes/header.php'; ?>
-    
-    <div class="container">
-        <?php include '../includes/sidebar.php'; ?>
-        
-        <main class="main-content">
-            <div class="page-header">
-                <div>
-                    <h1>✅ Mark Attendance</h1>
-                    <p>Select class and date to mark attendance</p>
-                </div>
-                <a href="index.php" class="btn btn-secondary">← Back</a>
+<?php include '../includes/header.php'; ?>
+<div class="container">
+    <?php include '../includes/sidebar.php'; ?>
+    <main class="main-content">
+
+        <div class="page-header">
+            <h1>✅ Mark Attendance</h1>
+        </div>
+
+        <?php if ($message): ?>
+            <div class="alert alert-<?php echo $messageType; ?>"><?php echo htmlspecialchars($message); ?></div>
+        <?php endif; ?>
+
+        <!-- Class + date picker -->
+        <div class="card" style="margin-bottom:20px;">
+            <div class="card-body">
+                <form method="GET" action="" style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
+                    <div class="form-group" style="margin:0;flex:1;min-width:200px;">
+                        <label>Class</label>
+                        <select name="class_id" class="form-control" onchange="this.form.submit()">
+                            <option value="">— Select a class —</option>
+                            <?php foreach ($classes as $cls): ?>
+                                <option value="<?php echo $cls['id']; ?>"
+                                    <?php echo ($cls['id'] == $classId) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($cls['name'] . ' (' . $cls['section'] . ')'); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label>Date</label>
+                        <input type="date" name="date" class="form-control"
+                               value="<?php echo htmlspecialchars($selectedDate); ?>"
+                               max="<?php echo date('Y-m-d'); ?>">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Load</button>
+                </form>
             </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <h2>📋 Select Class and Date</h2>
-                </div>
-                <div class="card-body">
-                    <form method="GET" class="form-row" style="margin-bottom: 30px;">
-                        <div class="form-group">
-                            <label for="class_id">Class <span>*</span></label>
-                            <select id="class_id" name="class_id" required>
-                                <option value="">Select Class</option>
-                                <?php foreach ($classes as $class): ?>
-                                    <option value="<?php echo $class['id']; ?>" <?php echo $selected_class == $class['id'] ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($class['class_name'] . ' - ' . ($class['section'] ?? '')); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="date">Date <span>*</span></label>
-                            <input type="date" id="date" name="date" value="<?php echo $selected_date; ?>" required>
-                        </div>
-                        
-                        <div class="form-group" style="display: flex; align-items: flex-end;">
-                            <button type="submit" class="btn btn-primary">🔍 Load Students</button>
-                        </div>
-                    </form>
-                    
-                    <?php if (! empty($students)): ?>
-                        <form method="POST">
-                            <input type="hidden" name="class_id" value="<?php echo $selected_class; ?>">
-                            <input type="hidden" name="date" value="<?php echo $selected_date; ?>">
-                            
-                            <div class="table-responsive">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Student ID</th>
-                                            <th>Student Name</th>
-                                            <th>Status</th>
-                                            <th>Remarks</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($students as $student): ?>
-                                            <?php
-                                            $existing = $existing_attendance[$student['id']] ?? null;
-                                            $current_status = $existing ? $existing['status'] : 'present';
-                                            $current_remarks = $existing ? $existing['remarks'] : '';
-                                            ?>
-                                            <tr>
-                                                <td><strong><?php echo htmlspecialchars($student['student_id']); ?></strong></td>
-                                                <td><?php echo htmlspecialchars($student['first_name'] .  ' ' . $student['last_name']); ?></td>
-                                                <td>
-                                                    <select name="attendance[<?php echo $student['id']; ?>][status]" required style="padding: 8px; border: 2px solid var(--border-color); border-radius: 8px;">
-                                                        <option value="present" <?php echo $current_status == 'present' ? 'selected' : ''; ?>>Present</option>
-                                                        <option value="absent" <?php echo $current_status == 'absent' ? 'selected' : ''; ?>>Absent</option>
-                                                        <option value="late" <?php echo $current_status == 'late' ?  'selected' : ''; ?>>Late</option>
-                                                        <option value="excused" <?php echo $current_status == 'excused' ? 'selected' : ''; ?>>Excused</option>
-                                                    </select>
-                                                </td>
-                                                <td>
-                                                    <input type="text" name="attendance[<?php echo $student['id']; ?>][remarks]" 
-                                                           value="<?php echo htmlspecialchars($current_remarks); ?>"
-                                                           placeholder="Optional remarks"
-                                                           style="padding: 8px; border: 2px solid var(--border-color); border-radius: 8px; width: 100%;">
-                                                </td>
-                                            </tr>
+        </div>
+
+        <?php if ($classId && $selectedClass): ?>
+        <div class="card">
+            <div class="card-header">
+                <h2>
+                    <?php echo htmlspecialchars($selectedClass['name']); ?>
+                    — <?php echo date('l, M d Y', strtotime($selectedDate)); ?>
+                </h2>
+                <span class="badge badge-active"><?php echo count($students); ?> enrolled students</span>
+            </div>
+            <div class="card-body">
+
+                <?php if (empty($students)): ?>
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <h3>No enrolled students</h3>
+                        <p>No active students are enrolled in this class. Enrol students first.</p>
+                        <?php if ($isAdmin): ?>
+                            <a href="../students/index.php" class="btn btn-primary">Manage Enrolments</a>
+                        <?php endif; ?>
+                    </div>
+                <?php else: ?>
+
+                <form method="POST" action="">
+                    <?php csrfField(); ?>
+                    <input type="hidden" name="class_id"        value="<?php echo $classId; ?>">
+                    <input type="hidden" name="attendance_date" value="<?php echo htmlspecialchars($selectedDate); ?>">
+
+                    <!-- Bulk mark buttons -->
+                    <div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;">
+                        <button type="button" class="btn btn-sm btn-success" onclick="markAll('present')">✅ All Present</button>
+                        <button type="button" class="btn btn-sm btn-danger"  onclick="markAll('absent')">❌ All Absent</button>
+                    </div>
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Reg No.</th>
+                                <th>Student</th>
+                                <th style="width:280px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($students as $i => $stu):
+                            $existing = $stu['existing_status'] ?: 'present';
+                            $id       = $stu['id'];
+                        ?>
+                            <tr>
+                                <td><?php echo $i + 1; ?></td>
+                                <td><?php echo htmlspecialchars($stu['reg_no']); ?></td>
+                                <td><?php echo htmlspecialchars($stu['first_name'] . ' ' . $stu['last_name']); ?></td>
+                                <td>
+                                    <div class="att-radio-group" style="display:flex;gap:8px;flex-wrap:wrap;">
+                                        <?php foreach (['present','absent','late','excused'] as $s): ?>
+                                        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;">
+                                            <input type="radio"
+                                                   name="attendance[<?php echo $id; ?>]"
+                                                   value="<?php echo $s; ?>"
+                                                   <?php echo ($existing === $s) ? 'checked' : ''; ?>>
+                                            <?php echo ucfirst($s); ?>
+                                        </label>
                                         <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                            
-                            <div style="margin-top: 30px; display: flex; gap: 15px;">
-                                <button type="submit" class="btn btn-primary">💾 Save Attendance</button>
-                                <a href="index.php" class="btn btn-secondary">❌ Cancel</a>
-                            </div>
-                        </form>
-                    <?php elseif ($selected_class): ?>
-                        <div class="empty-state">
-                            <div class="empty-state-icon">👨‍🎓</div>
-                            <h3>No Students Found</h3>
-                            <p>There are no students enrolled in this class.</p>
-                        </div>
-                    <?php endif; ?>
-                </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top:20px;">
+                        <button type="submit" class="btn btn-primary btn-lg">💾 Save Attendance</button>
+                    </div>
+                </form>
+
+                <?php endif; ?>
             </div>
-        </main>
-    </div>
-    
-    <script src="../assets/js/main.js"></script>
+        </div>
+        <?php endif; ?>
+
+    </main>
+</div>
+
+<script src="../assets/js/main.js"></script>
+<script>
+function markAll(status) {
+    document.querySelectorAll('input[type="radio"][value="' + status + '"]')
+        .forEach(r => r.checked = true);
+}
+</script>
 </body>
 </html>
