@@ -70,7 +70,7 @@ A complete, modern, and beautiful Student Management System built with PHP, MySQ
 
 1. **Download/Clone the Project**
    ```bash
-   git clone https://github.com/yourusername/student-management-system.git
+   git clone https://github.com/kkdjanakaeranda/student-management-system.git
    cd student-management-system
    ```
 
@@ -109,6 +109,12 @@ A complete, modern, and beautiful Student Management System built with PHP, MySQ
 6. **Login**
    - **Username**: `admin`
    - **Password**: `admin123`
+  
+   Default password for all users:
+      ```text
+         admin1
+      ```
+
 
 ## 📁 Project Structure
 
@@ -316,8 +322,8 @@ This project is licensed under the MIT License.
 ## 👨‍💻 Author
 
 **Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Email: your.email@example. com
+- GitHub: [@kkdjanakaeranda](https://github.com/kkdjanakaeranda)
+- Email: kkdjanakaeranda@gmail.com
 
 ## 🤝 Contributing
 
