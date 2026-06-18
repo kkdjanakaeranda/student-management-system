@@ -64,7 +64,7 @@ $students = $stmt->fetchAll();
                                     <?php foreach ($students as $student): ?>
                                         <tr>
                                             <td>
-                                                <img src="<?php echo $student['photo'] ? '../uploads/students/' . $student['photo'] : '../assets/images/default-avatar.png'; ?>" 
+                                                <img src="<?php echo $student['photo'] ? '../uploads/students/' . $student['photo'] : '../assets/images/default-avatar.svg'; ?>" 
                                                      alt="Photo" class="table-avatar">
                                             </td>
                                             <td><strong><?php echo htmlspecialchars($student['student_id']); ?></strong></td>
@@ -82,9 +82,11 @@ $students = $stmt->fetchAll();
                                                     <a href="view.php?id=<?php echo $student['id']; ?>" class="btn btn-sm btn-info">👁️ View</a>
                                                     <?php if (hasRole('admin')): ?>
                                                         <a href="edit.php?id=<?php echo $student['id']; ?>" class="btn btn-sm btn-warning">✏️ Edit</a>
-                                                        <a href="delete.php? id=<?php echo $student['id']; ?>" 
-                                                           class="btn btn-sm btn-danger" 
-                                                           onclick="return confirm('Are you sure? ')">🗑️ Delete</a>
+                                                        <form method="POST" action="delete.php" style="display:inline" onsubmit="return confirm('Are you sure? ')">
+                                                        <?php csrfField(); ?>
+                                                        <input type="hidden" name="id" value="<?php echo $student['id']; ?>">
+                                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                    </form>
                                                     <?php endif; ?>
                                                 </div>
                                             </td>

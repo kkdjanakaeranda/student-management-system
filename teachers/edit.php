@@ -23,6 +23,8 @@ if (!$teacher) {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verifyCsrf();
+
     $first_name = $_POST['first_name'];
     $last_name = $_POST['last_name'];
     $date_of_birth = $_POST['date_of_birth'];
@@ -53,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $db->beginTransaction();
         
         $query = "UPDATE teachers SET first_name = :first_name, last_name = :last_name, 
-                  date_of_birth = :date_of_birth, gender = : gender, phone = :phone, email = :email,
+                  date_of_birth = :date_of_birth, gender = :gender, phone = :phone, email = :email,
                   address = :address, qualification = :qualification, specialization = :specialization,
                   photo = :photo, status = :status WHERE id = :id";
         $stmt = $db->prepare($query);
@@ -64,11 +66,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':phone', $phone);
         $stmt->bindParam(':email', $email);
         $stmt->bindParam(':address', $address);
-        $stmt->bindParam(': qualification', $qualification);
+        $stmt->bindParam(':qualification', $qualification);
         $stmt->bindParam(':specialization', $specialization);
         $stmt->bindParam(':photo', $photo_name);
         $stmt->bindParam(':status', $status);
-        $stmt->bindParam(': id', $id);
+        $stmt->bindParam(':id', $id);
         $stmt->execute();
         
         $query = "UPDATE users SET email = :email WHERE id = :user_id";
@@ -87,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-<! DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -118,6 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="card">
                 <div class="card-body">
                     <form method="POST" enctype="multipart/form-data" class="form-grid">
+                        <?php csrfField(); ?>
                         <div class="form-section">
                             <h3>📋 Personal Information</h3>
                             

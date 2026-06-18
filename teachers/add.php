@@ -8,6 +8,8 @@ $db = $database->getConnection();
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verifyCsrf();
+
     $teacher_id = $_POST['teacher_id'];
     $first_name = $_POST['first_name'];
     $last_name = $_POST['last_name'];
@@ -47,12 +49,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         $query = "INSERT INTO teachers (user_id, teacher_id, first_name, last_name, date_of_birth, gender, 
                   phone, email, address, qualification, specialization, joining_date, photo) 
-                  VALUES (: user_id, :teacher_id, :first_name, :last_name, :date_of_birth, :gender, 
-                  :phone, :email, : address, :qualification, :specialization, :joining_date, :photo)";
+                  VALUES (:user_id, :teacher_id, :first_name, :last_name, :date_of_birth, :gender, 
+                  :phone, :email, :address, :qualification, :specialization, :joining_date, :photo)";
         $stmt = $db->prepare($query);
         $stmt->bindParam(':user_id', $user_id);
         $stmt->bindParam(':teacher_id', $teacher_id);
-        $stmt->bindParam(': first_name', $first_name);
+        $stmt->bindParam(':first_name', $first_name);
         $stmt->bindParam(':last_name', $last_name);
         $stmt->bindParam(':date_of_birth', $date_of_birth);
         $stmt->bindParam(':gender', $gender);
@@ -60,9 +62,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':email', $email);
         $stmt->bindParam(':address', $address);
         $stmt->bindParam(':qualification', $qualification);
-        $stmt->bindParam(': specialization', $specialization);
+        $stmt->bindParam(':specialization', $specialization);
         $stmt->bindParam(':joining_date', $joining_date);
-        $stmt->bindParam(': photo', $photo_name);
+        $stmt->bindParam(':photo', $photo_name);
         $stmt->execute();
         
         $db->commit();
@@ -106,6 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="card">
                 <div class="card-body">
                     <form method="POST" enctype="multipart/form-data" class="form-grid">
+                        <?php csrfField(); ?>
                         <div class="form-section">
                             <h3>📋 Personal Information</h3>
                             

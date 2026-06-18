@@ -67,9 +67,11 @@ $subjects = $stmt->fetchAll();
                                             <td>
                                                 <div style="display: flex; gap:  5px;">
                                                     <a href="edit.php?id=<?php echo $subject['id']; ?>" class="btn btn-sm btn-warning">✏️ Edit</a>
-                                                    <a href="delete.php?id=<?php echo $subject['id']; ?>" 
-                                                       class="btn btn-sm btn-danger" 
-                                                       onclick="return confirm('Are you sure? ')">🗑️ Delete</a>
+                                                    <form method="POST" action="delete.php" style="display:inline" onsubmit="return confirm('Are you sure? ')">
+                                                        <?php csrfField(); ?>
+                                                        <input type="hidden" name="id" value="<?php echo $subject['id']; ?>">
+                                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                    </form>
                                                 </div>
                                             </td>
                                         </tr>

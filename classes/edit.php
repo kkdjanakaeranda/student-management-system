@@ -34,6 +34,8 @@ $teachers = $stmt->fetchAll();
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verifyCsrf();
+
     $class_name = $_POST['class_name'];
     $section = $_POST['section'];
     $course_id = $_POST['course_id'] ?: null;
@@ -95,6 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="card">
                 <div class="card-body">
                     <form method="POST" class="form-grid">
+                        <?php csrfField(); ?>
                         <div class="form-section">
                             <h3>📋 Class Information</h3>
                             

@@ -5,6 +5,8 @@ session_start();
 define('SITE_NAME', 'Student Management System');
 define('BASE_URL',  'http://localhost/student-management-system/');
 define('UPLOAD_PATH', __DIR__ . '/../uploads/');
+define('STUDENT_PHOTO_DIR', UPLOAD_PATH . 'students/');
+define('TEACHER_PHOTO_DIR', UPLOAD_PATH . 'teachers/');
 
 // ── Database ──────────────────────────────────────────────────────────────────
 class Database {

@@ -5,7 +5,14 @@ requireAdmin();
 $database = new Database();
 $db = $database->getConnection();
 
-$id = $_GET['id'] ?? 0;
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: index.php');
+    exit();
+}
+
+verifyCsrf();
+
+$id = $_POST['id'] ?? 0;
 
 try {
     $query = "DELETE FROM courses WHERE id = :id";

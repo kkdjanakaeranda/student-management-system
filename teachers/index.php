@@ -6,13 +6,13 @@ $database = new Database();
 $db = $database->getConnection();
 
 $query = "SELECT t.*, u.email FROM teachers t 
-          LEFT JOIN users u ON t.user_id = u. id 
-          ORDER BY t. created_at DESC";
+          LEFT JOIN users u ON t.user_id = u.id 
+          ORDER BY t.created_at DESC";
 $stmt = $db->prepare($query);
 $stmt->execute();
 $teachers = $stmt->fetchAll();
 ?>
-<! DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -62,7 +62,7 @@ $teachers = $stmt->fetchAll();
                                     <?php foreach ($teachers as $teacher): ?>
                                         <tr>
                                             <td>
-                                                <img src="<?php echo $teacher['photo'] ? '../uploads/teachers/' . $teacher['photo'] : '../assets/images/default-avatar.png'; ?>" 
+                                                <img src="<?php echo $teacher['photo'] ? '../uploads/teachers/' . $teacher['photo'] : '../assets/images/default-avatar.svg'; ?>" 
                                                      alt="Photo" class="table-avatar">
                                             </td>
                                             <td><strong><?php echo htmlspecialchars($teacher['teacher_id']); ?></strong></td>
@@ -79,9 +79,11 @@ $teachers = $stmt->fetchAll();
                                                 <div style="display: flex; gap: 5px;">
                                                     <a href="view.php?id=<?php echo $teacher['id']; ?>" class="btn btn-sm btn-info">👁️ View</a>
                                                     <a href="edit.php?id=<?php echo $teacher['id']; ?>" class="btn btn-sm btn-warning">✏️ Edit</a>
-                                                    <a href="delete.php?id=<?php echo $teacher['id']; ?>" 
-                                                       class="btn btn-sm btn-danger" 
-                                                       onclick="return confirm('Are you sure? ')">🗑️ Delete</a>
+                                                    <form method="POST" action="delete.php" style="display:inline" onsubmit="return confirm('Are you sure? ')">
+                                                        <?php csrfField(); ?>
+                                                        <input type="hidden" name="id" value="<?php echo $teacher['id']; ?>">
+                                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                    </form>
                                                 </div>
                                             </td>
                                         </tr>

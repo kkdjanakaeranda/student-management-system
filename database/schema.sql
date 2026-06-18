@@ -6,6 +6,9 @@ USE student_management_system;
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
+    display_name VARCHAR(150) NULL,
+    student_id INT NULL,
+    teacher_id INT NULL,
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     role ENUM('admin', 'teacher', 'student') NOT NULL,

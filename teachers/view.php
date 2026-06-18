@@ -53,7 +53,7 @@ if (!$teacher) {
                         <h2>📸 Photo</h2>
                     </div>
                     <div class="card-body" style="text-align: center;">
-                        <img src="<?php echo $teacher['photo'] ? '../uploads/teachers/' . $teacher['photo'] : '../assets/images/default-avatar.png'; ?>" 
+                        <img src="<?php echo $teacher['photo'] ? '../uploads/teachers/' . $teacher['photo'] : '../assets/images/default-avatar.svg'; ?>" 
                              alt="Teacher Photo" 
                              style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover; border: 5px solid var(--secondary-color);">
                         <h3 style="margin-top: 20px;"><?php echo htmlspecialchars($teacher['first_name'] . ' ' . $teacher['last_name']); ?></h3>

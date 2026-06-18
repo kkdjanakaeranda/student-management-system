@@ -34,6 +34,27 @@ $exams = $examStmt->fetchAll();
 $examId  = (int)($_GET['exam_id'] ?? ($_POST['exam_id'] ?? 0));
 $message = ''; $msgType = '';
 
+function loadAllowedExam(PDO $db, int $examId, bool $isAdmin, int $teacherRowId): ?array {
+    if ($examId <= 0) return null;
+
+    $stmt = $db->prepare(
+        "SELECT ex.*
+         FROM exams ex
+         JOIN classes c ON c.id = ex.class_id
+         WHERE ex.id = :id
+           AND (:is_admin = 1 OR c.teacher_id = :tid)
+         LIMIT 1"
+    );
+    $stmt->execute([
+        ':id' => $examId,
+        ':is_admin' => (int)$isAdmin,
+        ':tid' => $teacherRowId,
+    ]);
+
+    $exam = $stmt->fetch();
+    return $exam ?: null;
+}
+
 // Save grades — no created_by in schema; use ON DUPLICATE KEY UPDATE
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $examId) {
     verifyCsrf();
@@ -41,11 +62,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $examId) {
     if (empty($records)) {
         $message = 'No grade data submitted.'; $msgType = 'error';
     } else {
-        $exStmt = $db->prepare("SELECT * FROM exams WHERE id=:id LIMIT 1");
-        $exStmt->execute([':id' => $examId]);
-        $exam = $exStmt->fetch();
+        $exam = loadAllowedExam($db, $examId, $isAdmin, $teacherRowId);
         if (!$exam) {
-            $message = 'Exam not found.'; $msgType = 'error';
+            $message = 'Exam not found or you do not have permission to update it.'; $msgType = 'error';
         } else {
             $db->beginTransaction();
             try {
@@ -87,9 +106,7 @@ function gradeFromPct(float $pct): string {
 
 $students = []; $selectedExam = null;
 if ($examId) {
-    $exStmt = $db->prepare("SELECT * FROM exams WHERE id=:id LIMIT 1");
-    $exStmt->execute([':id' => $examId]);
-    $selectedExam = $exStmt->fetch();
+    $selectedExam = loadAllowedExam($db, $examId, $isAdmin, $teacherRowId);
     if ($selectedExam) {
         // Only enrolled students — status='enrolled'
         $stuStmt = $db->prepare(

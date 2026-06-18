@@ -90,7 +90,7 @@ $exams = $stmt->fetchAll();
                             <h3>No Exams Found</h3>
                             <p>There are no exams scheduled yet.</p>
                             <?php if (hasRole('admin') || hasRole('teacher')): ?>
-                                <a href="add. php" class="btn btn-primary mt-3">Add First Exam</a>
+                                <a href="add.php" class="btn btn-primary mt-3">Add First Exam</a>
                             <?php endif; ?>
                         </div>
                     <?php endif; ?>

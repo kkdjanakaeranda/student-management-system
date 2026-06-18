@@ -5,7 +5,14 @@ requireAdmin();
 $database = new Database();
 $db = $database->getConnection();
 
-$id = $_GET['id'] ?? 0;
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: index.php');
+    exit();
+}
+
+verifyCsrf();
+
+$id = $_POST['id'] ?? 0;
 
 $query = "SELECT * FROM teachers WHERE id = :id";
 $stmt = $db->prepare($query);
@@ -23,7 +30,7 @@ try {
         unlink(TEACHER_PHOTO_DIR . $teacher['photo']);
     }
     
-    $query = "DELETE FROM teachers WHERE id = : id";
+    $query = "DELETE FROM teachers WHERE id = :id";
     $stmt = $db->prepare($query);
     $stmt->bindParam(':id', $id);
     $stmt->execute();

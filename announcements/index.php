@@ -9,8 +9,9 @@ $success = '';
 $error = '';
 
 // Handle delete
-if (isset($_GET['delete']) && hasRole('admin')) {
-    $delete_id = $_GET['delete'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id']) && hasRole('admin')) {
+    verifyCsrf();
+    $delete_id = $_POST['delete_id'];
     
     try {
         $query = "DELETE FROM announcements WHERE id = :id";
@@ -34,7 +35,7 @@ $search = $_GET['search'] ?? '';
 // Build query based on filter
 $query = "SELECT a.*, u.username, u.role 
           FROM announcements a 
-          LEFT JOIN users u ON a. posted_by = u.id";
+          LEFT JOIN users u ON a.posted_by = u.id";
 
 $where = [];
 $params = [];
@@ -125,7 +126,6 @@ $announcements = $stmt->fetchAll();
                                 <option value="all" <?php echo $filter === 'all' ? 'selected' : ''; ?>>All Audiences</option>
                                 <option value="students" <?php echo $filter === 'students' ? 'selected' : ''; ?>>Students Only</option>
                                 <option value="teachers" <?php echo $filter === 'teachers' ? 'selected' : ''; ?>>Teachers Only</option>
-                                <option value="admin" <?php echo $filter === 'admin' ? 'selected' : ''; ?>>Admin Only</option>
                             </select>
                         </div>
                         
@@ -187,18 +187,22 @@ $announcements = $stmt->fetchAll();
                                             
                                             <?php if (hasRole('admin') || $_SESSION['user_id'] == $announcement['posted_by']): ?>
                                             <div class="btn-group">
-                                                <a href="edit. php?id=<?php echo $announcement['id']; ?>" 
+                                                <a href="edit.php?id=<?php echo $announcement['id']; ?>" 
                                                    class="btn btn-sm btn-warning" 
                                                    title="Edit">
                                                     ✏️
                                                 </a>
                                                 <?php if (hasRole('admin')): ?>
-                                                <a href="? delete=<?php echo $announcement['id']; ?>" 
+                                                <a href="#" 
                                                    class="btn btn-sm btn-danger" 
                                                    title="Delete"
                                                    onclick="return confirm('⚠️ Are you sure you want to delete this announcement?\n\nTitle: <?php echo htmlspecialchars($announcement['title']); ?>\n\nThis action cannot be undone!');">
                                                     🗑️
                                                 </a>
+                                                <form method="POST" action="index.php" class="delete-announcement-form" style="display:none">
+                                                    <?php csrfField(); ?>
+                                                    <input type="hidden" name="delete_id" value="<?php echo $announcement['id']; ?>">
+                                                </form>
                                                 <?php endif; ?>
                                             </div>
                                             <?php endif; ?>
@@ -314,6 +318,17 @@ $announcements = $stmt->fetchAll();
     </style>
     
     <script>
+        document.querySelectorAll('a[title="Delete"][href="#"]').forEach((link) => {
+            link.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                const form = link.nextElementSibling;
+                if (form && confirm('Are you sure you want to delete this announcement? This action cannot be undone.')) {
+                    form.submit();
+                }
+            }, true);
+        });
+
         // Auto-hide success message
         <?php if ($success): ?>
         setTimeout(() => {

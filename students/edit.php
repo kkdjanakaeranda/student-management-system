@@ -23,6 +23,8 @@ if (!$student) {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verifyCsrf();
+
     $first_name = $_POST['first_name'];
     $last_name = $_POST['last_name'];
     $date_of_birth = $_POST['date_of_birth'];
@@ -53,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $db->beginTransaction();
         
         $query = "UPDATE students SET first_name = :first_name, last_name = :last_name, 
-                  date_of_birth = :date_of_birth, gender = : gender, phone = :phone, 
+                  date_of_birth = :date_of_birth, gender = :gender, phone = :phone, 
                   address = :address, guardian_name = :guardian_name, guardian_phone = :guardian_phone, 
                   photo = :photo, status = :status WHERE id = :id";
         $stmt = $db->prepare($query);
@@ -86,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-<! DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -117,6 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="card">
                 <div class="card-body">
                     <form method="POST" enctype="multipart/form-data" class="form-grid">
+                        <?php csrfField(); ?>
                         <div class="form-section">
                             <h3>📋 Personal Information</h3>
                             
@@ -197,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">💾 Update Student</button>
-                            <a href="view. php?id=<?php echo $id; ?>" class="btn btn-secondary">❌ Cancel</a>
+                            <a href="view.php?id=<?php echo $id; ?>" class="btn btn-secondary">❌ Cancel</a>
                         </div>
                     </form>
                 </div>
@@ -207,4 +210,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     <script src="../assets/js/main.js"></script>
 </body>
-</html
+</html>
