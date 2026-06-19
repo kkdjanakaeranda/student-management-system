@@ -47,10 +47,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===========================================
     const currentPath = window.location.pathname;
     const navLinks = document.querySelectorAll('.nav-link');
+    const currentParts = currentPath.split('/').filter(Boolean);
+    const currentFile = currentParts[currentParts.length - 1] || '';
+    const currentModule = currentParts.length > 1 ? currentParts[currentParts.length - 2] : currentFile.replace('.php', '');
+
     navLinks.forEach(link => {
         const href = link.getAttribute('href');
-        if (href && currentPath.includes(new URL(href, window.location.origin).pathname)) {
-            link.classList.add('active');
+        if (href) {
+            const linkPath = new URL(href, window.location.origin).pathname;
+            const linkParts = linkPath.split('/').filter(Boolean);
+            const linkFile = linkParts[linkParts.length - 1] || '';
+            const linkModule = linkParts.length > 1 ? linkParts[linkParts.length - 2] : linkFile.replace('.php', '');
+            const isDashboard = linkFile === 'dashboard.php' && currentFile === 'dashboard.php';
+
+            if (isDashboard || (linkFile === 'index.php' && linkModule === currentModule)) {
+                link.classList.add('active');
+            }
         }
 
         link.addEventListener('click', function () {
