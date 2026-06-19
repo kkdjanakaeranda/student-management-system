@@ -1,141 +1,165 @@
 # Student Management System
 
-A PHP and MySQL based Student Management System for managing students, teachers, classes, courses, attendance, exams, grades, and announcements. The project is designed for a local XAMPP-style environment and uses a simple role-based dashboard for admins, teachers, and students.
+A PHP and MySQL student management application for a local XAMPP-style environment. It manages students, teachers, courses, classes, subjects, attendance, exams, grades, and announcements with role-based access for admins, teachers, and students.
 
-## Features
+## Current Modules
 
-### Authentication and Roles
-- Login and logout with PHP sessions
-- Role-based access for admin, teacher, and student users
-- CSRF protection on form submissions
-- Password verification with PHP password hashes
-- Access helpers for student-owned and teacher-assigned records
+### Login and Dashboard
+- Session-based login and logout.
+- Role-aware dashboard for admin, teacher, and student users.
+- Admin dashboard shows active students, teachers, classes, and courses.
+- Teacher dashboard shows assigned classes, subjects, students, upcoming exams, and pending attendance.
+- Student dashboard shows enrolled classes, average grade, recent attendance percentage, upcoming exams, and quick links to personal pages.
 
-### Dashboard
-- Role-aware dashboard after login
-- Quick access navigation through the shared sidebar
-- Responsive layout for desktop and smaller screens
+### Students
+- Admins can add, edit, view, and deactivate students.
+- Teachers can view students assigned through their classes.
+- Students can access personal attendance, grade, and timetable pages.
+- Student detail pages include profile information, guardian details, admission data, and enrollments.
+- Admins can enroll students into active classes from the student detail page.
 
-### Student Management
-- Add, edit, view, and deactivate student records
-- Student profile details with photo support
-- Guardian information
-- Class enrollment tracking
-- Student self-service pages for attendance, grades, and timetable
+### Teachers
+- Admin-only module.
+- Admins can add, edit, view, and deactivate teachers.
+- Teacher records include profile, contact, qualification, specialization, joining date, and status.
 
-### Teacher Management
-- Add, edit, view, and deactivate teacher records
-- Teacher profile details with photo support
-- Qualification, specialization, joining date, and contact information
-
-### Academic Management
-- Manage courses with code, name, credits, duration, description, and status
-- Manage classes with course, teacher, academic year, room, and section
-- Manage subjects assigned to classes and teachers
-- View individual course details
+### Courses, Classes, and Subjects
+- Admin-only management pages.
+- Courses include code, name, credits, duration, description, and status.
+- Classes link courses, teachers, academic year, room number, section, and status.
+- Subjects link a class and teacher with subject code, name, and description.
 
 ### Attendance
-- View attendance records
-- Mark attendance by class and date
-- Supports present, absent, late, and excused statuses
-- Teachers can mark attendance for assigned classes
-- Admins can manage attendance across classes
-- CSV export support from the attendance listing
+- Admins and teachers can mark attendance by class and date.
+- Attendance statuses: `present`, `absent`, `late`, and `excused`.
+- Teachers are scoped to their assigned classes.
+- Students have a personal attendance summary and recent attendance records page.
+- The main attendance listing shows today's attendance records, scoped by role.
 
 ### Exams and Grades
-- Create and manage exams
-- Enter student grades
-- Track marks, grade values, and remarks
-- CSV export support from the grades listing
+- Admins and teachers can create and edit exams.
+- Exams are scoped by assigned classes for teachers and by enrolled classes for students.
+- Admins and teachers can enter grades.
+- Students can view their own grades and average percentage.
 
 ### Announcements
-- Create, edit, and view announcements
-- Target announcements to all users, students, or teachers
-- Priority levels for low, medium, and high importance
-
-### User Interface
-- Shared header and sidebar layout
-- Responsive tables and cards
-- Detail pages for students, teachers, and courses
-- Profile summary cards for student and teacher views
-- Consistent form, button, badge, alert, and table styling
+- Admins and teachers can create announcements.
+- Admins can delete announcements.
+- Authors and admins can edit announcements.
+- Announcements can target all users, students, or teachers.
+- Announcements support low, medium, and high priority.
 
 ## Technology Stack
 
 - PHP 7.4+
 - MySQL or MariaDB
-- Apache through XAMPP or another PHP web server
+- Apache through XAMPP or a similar PHP web server
 - HTML, CSS, and JavaScript
-- PDO for database access
+- PDO database access
+- Custom CSS in `assets/css/style.css`
 
 ## Requirements
 
-- XAMPP, WAMP, MAMP, or equivalent PHP/MySQL stack
+- XAMPP, WAMP, MAMP, or an equivalent local PHP/MySQL stack
 - PHP 7.4 or newer
 - MySQL 5.7+ or MariaDB
 - A modern browser such as Chrome, Edge, Firefox, or Safari
 
 ## Installation
 
-1. Place the project folder inside your web server root.
+1. Put the project in your web server root.
 
-   For XAMPP on Windows, the expected path is:
+   For XAMPP on Windows:
 
    ```text
    C:\xampp\htdocs\student-management-system
    ```
 
-2. Start Apache and MySQL from the XAMPP Control Panel.
+2. Start Apache and MySQL.
 
-3. Create and import the database.
+3. Import a database file.
 
-   Option A: base schema only:
+   Base schema:
 
    ```bash
    mysql -u root -p < database/schema.sql
    ```
 
-   Option B: schema with sample/mock data:
+   Sample/mock data:
 
    ```bash
    mysql -u root -p student_management_system < database/student_management_system_with_mock_data.sql
    ```
 
-4. If you are updating an older install, run the migration file:
+4. For an older database, run the compatibility migration:
 
    ```bash
    mysql -u root -p student_management_system < database/migration_lms_fixes.sql
    ```
 
-5. Check the database settings in `config/config.php`.
+5. Check `config/config.php`.
 
-   Current default settings:
+   Current defaults:
 
    ```php
    define('SITE_NAME', 'Student Management System');
    define('BASE_URL', 'http://localhost/student-management-system/');
    ```
 
-   Database connection defaults:
+   Current database settings inside `config/config.php`:
 
-   ```php
+   ```text
    host: localhost
    database: student_management_system
    username: root
    password: empty
    ```
 
-6. Open the app in your browser:
+6. Open the app:
 
    ```text
    http://localhost/student-management-system/
    ```
 
-## Login Notes
+## Verified Seed Login Notes
 
-The base `database/schema.sql` creates an admin user named `admin`. The SQL comment lists the intended password as `admin123`.
+The seed data currently contains different password hashes depending on which SQL file you import.
 
-The mock-data SQL file includes additional users such as `admin1`, `teacher1`, and `student1`. If login fails after importing sample data, check the hashed passwords in the imported SQL or reset the password using PHP's `password_hash()`.
+### `database/schema.sql`
+
+The inserted admin user is:
+
+```text
+username: admin
+password: password
+role: admin
+```
+
+Note: the SQL comment says `admin123`, but the actual hash in `schema.sql` verifies as `password`.
+
+### `database/student_management_system_with_mock_data.sql`
+
+Verified examples from the mock data:
+
+```text
+username: admin
+password: admin123
+role: admin
+
+username: admin1
+password: admin1
+role: admin
+
+username: teacher1
+password: teacher1
+role: teacher
+
+username: student1
+password: admin1
+role: student
+```
+
+Several mock users use `admin1` as the password.
 
 ## Project Structure
 
@@ -146,9 +170,14 @@ student-management-system/
 |   |-- edit.php
 |   `-- index.php
 |-- assets/
-|   |-- css/style.css
+|   |-- css/
+|   |   |-- style.css
+|   |   `-- style.css.backup
 |   |-- images/
-|   `-- js/main.js
+|   |   |-- create-default-avatar.php
+|   |   `-- default-avatar.svg
+|   `-- js/
+|       `-- main.js
 |-- attendance/
 |   |-- index.php
 |   `-- mark.php
@@ -210,88 +239,114 @@ student-management-system/
 `-- README.md
 ```
 
-## Main Database Tables
+## Database Tables
 
-- `users` - login accounts, roles, display names, and linked profile IDs
+- `users` - login accounts, roles, display names, and linked student/teacher IDs
 - `students` - student profile and guardian details
 - `teachers` - teacher profile and professional details
 - `courses` - course catalog
 - `classes` - class sections linked to courses and teachers
-- `enrollments` - student class enrollment records
+- `enrollments` - student-to-class enrollment records
 - `subjects` - class subjects linked to teachers
 - `attendance` - daily attendance records
-- `exams` - exam schedules and marks configuration
+- `exams` - exam schedules and marks setup
 - `grades` - student exam results
 - `announcements` - system announcements
 
-## Role Permissions
+## Role Access Summary
 
 ### Admin
-- Full access to students, teachers, classes, courses, subjects, exams, grades, attendance, and announcements
-- Can enroll students in classes
-- Can deactivate students, teachers, classes, courses, and subjects
+- Dashboard
+- Students
+- Teachers
+- Classes
+- Courses
+- Subjects
+- Attendance
+- Exams
+- Grades
+- Announcements
 
 ### Teacher
-- Can view students assigned through their classes
-- Can mark attendance for assigned classes
-- Can work with grade and announcement modules where allowed by the page logic
+- Dashboard
+- Assigned students
+- Attendance for assigned classes
+- Exams for assigned classes
+- Grades for assigned classes
+- Announcements
 
 ### Student
-- Can view their own profile-related information
-- Can access personal attendance, grades, timetable, and announcements
+- Dashboard
+- Personal attendance page
+- Personal grades page
+- Personal timetable page
+- Announcements
 
-## Security Notes
+The sidebar currently shows students only the dashboard and announcements links. Student-specific attendance, grades, and timetable pages are linked from the student dashboard.
 
-- Uses PDO prepared statements for database queries
-- Uses `password_verify()` for login
-- Uses CSRF tokens for protected forms
-- Uses role-check helpers such as `requireAdmin()`, `requireTeacher()`, and `requireStudent()`
-- Uses HTML escaping through `e()` and `htmlspecialchars()`
-- Validates photo uploads by MIME type and size
+## Security and Data Handling
+
+- Uses PDO prepared statements for database queries.
+- Uses `password_verify()` for login.
+- Uses session regeneration on successful login.
+- Uses CSRF tokens for protected forms.
+- Uses role-check helpers such as `requireAdmin()`, `requireTeacher()`, and `requireStudent()`.
+- Uses output escaping through `e()` and `htmlspecialchars()`.
+- Photo uploads are checked by MIME type and limited to 2 MB in `handlePhotoUpload()`.
+- Delete actions generally deactivate records instead of removing business data permanently.
+
+## Important Development Notes
+
+- Current pages load `config/config.php`, which contains app settings, database connection, auth helpers, CSRF helpers, and upload helpers.
+- `config/database.php` still exists as an older standalone database connection class, but the active pages use `config/config.php`.
+- Shared layout files are `includes/header.php` and `includes/sidebar.php`.
+- Main styling is in `assets/css/style.css`.
+- Main JavaScript is in `assets/js/main.js`.
+- The app assumes the `BASE_URL` folder name is `student-management-system`.
+- If you rename the folder, update `BASE_URL` in `config/config.php`.
 
 ## Common Troubleshooting
 
 ### Login fails
-- Confirm the database was imported successfully.
+- Confirm which SQL file was imported.
+- Use the verified seed credentials above.
 - Confirm `config/config.php` points to the correct database.
-- If using mock data, reset the user password if you are unsure of the imported hash.
+- If necessary, reset a password using PHP's `password_hash()` and update the `users` table.
+
+### Page redirects to dashboard
+- The logged-in role probably does not have access to that page.
+- Admin-only pages use `requireAdmin()`.
+- Student personal pages require the `student` role.
 
 ### CSS or layout looks old
-- Hard refresh the browser with `Ctrl + F5`.
-- Confirm `assets/css/style.css` is loading from the correct `BASE_URL`.
+- Hard refresh with `Ctrl + F5`.
+- Confirm `BASE_URL` is correct.
+- Confirm `assets/css/style.css` is the file being loaded.
 
 ### Blank page or PHP error
-- Enable PHP error reporting in your local environment.
+- Enable PHP error reporting locally.
 - Check the Apache/PHP error log.
 - Confirm the database schema matches the current PHP files.
-- Run `database/migration_lms_fixes.sql` if this is an older database.
+- Run `database/migration_lms_fixes.sql` if the database was created before the current user-linking fields were added.
 
 ### Image uploads fail
 - Confirm `uploads/students/` and `uploads/teachers/` exist.
-- Confirm the web server can write to the `uploads/` directory.
-- Use supported image types: JPEG, PNG, GIF, or WebP.
+- Confirm Apache can write to the `uploads/` directory.
+- Use JPEG, PNG, GIF, or WebP files under 2 MB.
 
-## Development Notes
+## Known Gaps and Future Improvements
 
-- Shared UI styles live in `assets/css/style.css`.
-- Shared navigation lives in `includes/sidebar.php`.
-- Shared page header and user controls live in `includes/header.php`.
-- Main auth, database, CSRF, and helper functions live in `config/config.php`.
-- Older `config/database.php` exists, but current pages load `config/config.php`.
-
-## Future Improvements
-
+- Password reset workflow
 - PDF reports
+- CSV export
 - Email notifications
 - Parent portal
 - Fee management
-- Timetable management UI
+- Timetable management UI for admins
 - Stronger audit logging
-- More automated tests
-- Cleaner password reset workflow
+- Automated tests
+- Cleaner removal of old backup or legacy files
 
 ## Author
-
-Project repository: `student-management-system`
 
 GitHub: [@kkdjanakaeranda](https://github.com/kkdjanakaeranda)
