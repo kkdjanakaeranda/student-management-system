@@ -45,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':priority', $priority);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
+        logAction($db, 'updated', 'announcement', (int)$id, $title);
         
         header('Location: index.php');
         exit();

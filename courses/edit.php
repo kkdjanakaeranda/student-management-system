@@ -65,6 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bindParam(':id', $id);
                 
                 if ($stmt->execute()) {
+                    logAction($db, 'updated', 'course', (int)$id, $course_code);
                     $success = 'Course updated successfully!  Redirecting...';
                     // Refresh course data
                     $stmt = $db->prepare("SELECT * FROM courses WHERE id = :id");

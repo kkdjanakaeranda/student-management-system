@@ -19,6 +19,51 @@ if (!$student) {
     header('Location: index.php');
     exit();
 }
+
+if (!canAccessStudent($db, (int)$student['id'])) {
+    header('Location: index.php');
+    exit();
+}
+
+$message = '';
+$messageType = '';
+if (hasRole('admin') && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    verifyCsrf();
+    $classId = (int)($_POST['class_id'] ?? 0);
+    if ($classId > 0) {
+        try {
+            $enroll = $db->prepare(
+                "INSERT INTO enrollments (student_id, class_id, enrollment_date, status)
+                 VALUES (:student_id, :class_id, CURDATE(), 'enrolled')"
+            );
+            $enroll->execute([':student_id' => $student['id'], ':class_id' => $classId]);
+            logAction($db, 'created', 'enrollment', (int)$db->lastInsertId(), 'Student enrolled in class.');
+            $message = 'Student enrolled successfully.';
+            $messageType = 'success';
+        } catch (Exception $e) {
+            $message = 'Could not enroll student: ' . $e->getMessage();
+            $messageType = 'error';
+        }
+    }
+}
+
+$enrollmentsStmt = $db->prepare(
+    "SELECT e.*, c.class_name, c.section, co.course_name
+     FROM enrollments e
+     JOIN classes c ON c.id = e.class_id
+     LEFT JOIN courses co ON co.id = c.course_id
+     WHERE e.student_id = :student_id
+     ORDER BY e.enrollment_date DESC, e.id DESC"
+);
+$enrollmentsStmt->execute([':student_id' => $student['id']]);
+$enrollments = $enrollmentsStmt->fetchAll();
+
+$classes = [];
+if (hasRole('admin')) {
+    $classesStmt = $db->prepare("SELECT id, class_name, section FROM classes WHERE status = 'active' ORDER BY class_name");
+    $classesStmt->execute();
+    $classes = $classesStmt->fetchAll();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -48,6 +93,10 @@ if (!$student) {
                     <a href="index.php" class="btn btn-secondary">← Back</a>
                 </div>
             </div>
+
+            <?php if ($message): ?>
+                <div class="alert alert-<?php echo $messageType; ?>"><?php echo e($message); ?></div>
+            <?php endif; ?>
             
             <div class="content-grid">
                 <div class="card">
@@ -137,6 +186,50 @@ if (!$student) {
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 24px;">
+                <div class="card-header"><h2>Enrollments</h2></div>
+                <div class="card-body">
+                    <?php if (hasRole('admin')): ?>
+                        <form method="POST" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:20px;">
+                            <?php csrfField(); ?>
+                            <div class="form-group" style="min-width:240px;margin:0;">
+                                <label for="class_id">Class</label>
+                                <select id="class_id" name="class_id" required>
+                                    <option value="">Select class</option>
+                                    <?php foreach ($classes as $class): ?>
+                                        <option value="<?php echo $class['id']; ?>">
+                                            <?php echo e($class['class_name'] . ' ' . ($class['section'] ?? '')); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Enroll</button>
+                        </form>
+                    <?php endif; ?>
+
+                    <?php if ($enrollments): ?>
+                        <table class="data-table">
+                            <thead><tr><th>Class</th><th>Course</th><th>Date</th><th>Status</th></tr></thead>
+                            <tbody>
+                                <?php foreach ($enrollments as $enrollment): ?>
+                                    <tr>
+                                        <td><?php echo e($enrollment['class_name'] . ' ' . ($enrollment['section'] ?? '')); ?></td>
+                                        <td><?php echo e($enrollment['course_name'] ?? 'N/A'); ?></td>
+                                        <td><?php echo e($enrollment['enrollment_date']); ?></td>
+                                        <td><?php echo e($enrollment['status']); ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php else: ?>
+                        <div class="empty-state">
+                            <h3>No Enrollments</h3>
+                            <p>This student is not enrolled in any class yet.</p>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </main>

@@ -82,7 +82,7 @@ $teachers = $stmt->fetchAll();
                                                     <form method="POST" action="delete.php" style="display:inline" onsubmit="return confirm('Are you sure? ')">
                                                         <?php csrfField(); ?>
                                                         <input type="hidden" name="id" value="<?php echo $teacher['id']; ?>">
-                                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                        <button type="submit" class="btn btn-sm btn-danger">Deactivate</button>
                                                     </form>
                                                 </div>
                                             </td>

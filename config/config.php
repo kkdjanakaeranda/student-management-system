@@ -84,6 +84,82 @@ function displayName(): string {
     );
 }
 
+function e(?string $value): string {
+    return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
+}
+
+function redirect(string $path): void {
+    header('Location: ' . $path);
+    exit();
+}
+
+function requirePost(): void {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        die('Method not allowed.');
+    }
+}
+
+function currentTeacherRowId(PDO $db): int {
+    if (!hasRole('teacher')) return 0;
+    if (isset($_SESSION['teacher_row_id'])) return (int)$_SESSION['teacher_row_id'];
+
+    $stmt = $db->prepare("SELECT id FROM teachers WHERE user_id = :uid LIMIT 1");
+    $stmt->execute([':uid' => $_SESSION['user_id'] ?? 0]);
+    $row = $stmt->fetch();
+    $_SESSION['teacher_row_id'] = $row ? (int)$row['id'] : 0;
+    return (int)$_SESSION['teacher_row_id'];
+}
+
+function currentStudentRowId(PDO $db): int {
+    if (!hasRole('student')) return 0;
+    if (isset($_SESSION['student_row_id'])) return (int)$_SESSION['student_row_id'];
+
+    $stmt = $db->prepare("SELECT id FROM students WHERE user_id = :uid LIMIT 1");
+    $stmt->execute([':uid' => $_SESSION['user_id'] ?? 0]);
+    $row = $stmt->fetch();
+    $_SESSION['student_row_id'] = $row ? (int)$row['id'] : 0;
+    return (int)$_SESSION['student_row_id'];
+}
+
+function canAccessStudent(PDO $db, int $studentId): bool {
+    if (hasRole('admin')) return true;
+    if (hasRole('student')) return currentStudentRowId($db) === $studentId;
+    if (!hasRole('teacher')) return false;
+
+    $stmt = $db->prepare(
+        "SELECT 1
+         FROM enrollments e
+         JOIN classes c ON c.id = e.class_id
+         WHERE e.student_id = :student_id
+           AND c.teacher_id = :teacher_id
+         LIMIT 1"
+    );
+    $stmt->execute([
+        ':student_id' => $studentId,
+        ':teacher_id' => currentTeacherRowId($db),
+    ]);
+    return (bool)$stmt->fetch();
+}
+
+function logAction(PDO $db, string $action, string $entityType, ?int $entityId = null, string $details = ''): void {
+    try {
+        $stmt = $db->prepare(
+            "INSERT INTO audit_logs (user_id, action, entity_type, entity_id, details)
+             VALUES (:user_id, :action, :entity_type, :entity_id, :details)"
+        );
+        $stmt->execute([
+            ':user_id' => $_SESSION['user_id'] ?? null,
+            ':action' => $action,
+            ':entity_type' => $entityType,
+            ':entity_id' => $entityId,
+            ':details' => $details,
+        ]);
+    } catch (Exception $e) {
+        // Audit logging should never break the user workflow.
+    }
+}
+
 // ── CSRF helpers ──────────────────────────────────────────────────────────────
 function csrfToken(): string {
     if (empty($_SESSION['csrf_token'])) {

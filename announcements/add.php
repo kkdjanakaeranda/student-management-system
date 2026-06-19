@@ -25,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':target_audience', $target_audience);
         $stmt->bindParam(':priority', $priority);
         $stmt->execute();
+        logAction($db, 'created', 'announcement', (int)$db->lastInsertId(), $title);
         
         header('Location: index.php');
         exit();

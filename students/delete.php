@@ -32,11 +32,12 @@ try {
         unlink(STUDENT_PHOTO_DIR . $student['photo']);
     }
     
-    // Delete student record (user will be deleted by cascade)
-    $query = "DELETE FROM students WHERE id = :id";
+    // Preserve academic history by deactivating instead of deleting.
+    $query = "UPDATE students SET status = 'inactive' WHERE id = :id";
     $stmt = $db->prepare($query);
     $stmt->bindParam(':id', $id);
     $stmt->execute();
+    logAction($db, 'deactivated', 'student', (int)$id, $student['student_id'] ?? '');
     
     header('Location: index.php');
     exit();

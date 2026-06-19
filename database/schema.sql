@@ -169,6 +169,18 @@ CREATE TABLE announcements (
     FOREIGN KEY (posted_by) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Audit Logs Table
+CREATE TABLE audit_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NULL,
+    action VARCHAR(50) NOT NULL,
+    entity_type VARCHAR(50) NOT NULL,
+    entity_id INT NULL,
+    details TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
 -- Insert default admin user (password: admin123)
 INSERT INTO users (username, password, email, role) 
 VALUES ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin@sms.com', 'admin');

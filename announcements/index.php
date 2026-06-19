@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id']) && hasRo
         $stmt->bindParam(':id', $delete_id);
         
         if ($stmt->execute()) {
+            logAction($db, 'deleted', 'announcement', (int)$delete_id);
             $success = 'Announcement deleted successfully!';
         } else {
             $error = 'Failed to delete announcement. ';

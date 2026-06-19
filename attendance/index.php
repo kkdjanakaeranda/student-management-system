@@ -5,19 +5,46 @@ requireLogin();
 $database = new Database();
 $db = $database->getConnection();
 
-// Get today's date
 $today = date('Y-m-d');
 
-$query = "SELECT a.*, s.student_id, s.first_name, s.last_name, c.class_name 
-          FROM attendance a 
-          JOIN students s ON a.student_id = s.id 
-          JOIN classes c ON a.class_id = c.id 
-          WHERE a.date = :today
+$params = [':today' => $today];
+$scopeSql = '';
+if (hasRole('teacher')) {
+    $scopeSql = ' AND c.teacher_id = :teacher_id';
+    $params[':teacher_id'] = currentTeacherRowId($db);
+} elseif (hasRole('student')) {
+    $scopeSql = ' AND s.id = :student_id';
+    $params[':student_id'] = currentStudentRowId($db);
+}
+
+$query = "SELECT a.*, s.student_id, s.first_name, s.last_name, c.class_name
+          FROM attendance a
+          JOIN students s ON a.student_id = s.id
+          JOIN classes c ON a.class_id = c.id
+          WHERE a.date = :today $scopeSql
           ORDER BY c.class_name, s.first_name";
 $stmt = $db->prepare($query);
-$stmt->bindParam(':today', $today);
-$stmt->execute();
+$stmt->execute($params);
 $attendances = $stmt->fetchAll();
+
+if (isset($_GET['export']) && $_GET['export'] === 'csv') {
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="attendance-' . $today . '.csv"');
+    $out = fopen('php://output', 'w');
+    fputcsv($out, ['Student ID', 'Student Name', 'Class', 'Date', 'Status', 'Remarks']);
+    foreach ($attendances as $attendance) {
+        fputcsv($out, [
+            $attendance['student_id'],
+            $attendance['first_name'] . ' ' . $attendance['last_name'],
+            $attendance['class_name'],
+            $attendance['date'],
+            $attendance['status'],
+            $attendance['remarks'] ?? '',
+        ]);
+    }
+    fclose($out);
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -44,6 +71,7 @@ $attendances = $stmt->fetchAll();
                     <a href="mark.php" class="btn btn-primary">
                         ➕ Mark Attendance
                     </a>
+                    <a href="?export=csv" class="btn btn-secondary">Export CSV</a>
                 <?php endif; ?>
             </div>
             

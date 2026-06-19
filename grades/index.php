@@ -5,16 +5,50 @@ requireLogin();
 $database = new Database();
 $db = $database->getConnection();
 
-$query = "SELECT g.*, s.student_id, s.first_name, s.last_name, 
-          e.exam_name, e.total_marks, sub.subject_name 
-          FROM grades g 
-          JOIN students s ON g.student_id = s.id 
-          JOIN exams e ON g.exam_id = e.id 
-          JOIN subjects sub ON e.subject_id = sub.id 
+$params = [];
+$scopeSql = '';
+if (hasRole('teacher')) {
+    $scopeSql = ' WHERE c.teacher_id = :teacher_id';
+    $params[':teacher_id'] = currentTeacherRowId($db);
+} elseif (hasRole('student')) {
+    $scopeSql = ' WHERE s.id = :student_id';
+    $params[':student_id'] = currentStudentRowId($db);
+}
+
+$query = "SELECT g.*, s.student_id, s.first_name, s.last_name,
+          e.exam_name, e.total_marks, sub.subject_name
+          FROM grades g
+          JOIN students s ON g.student_id = s.id
+          JOIN exams e ON g.exam_id = e.id
+          JOIN classes c ON c.id = e.class_id
+          JOIN subjects sub ON e.subject_id = sub.id
+          $scopeSql
           ORDER BY g.created_at DESC LIMIT 50";
 $stmt = $db->prepare($query);
-$stmt->execute();
+$stmt->execute($params);
 $grades = $stmt->fetchAll();
+
+if (isset($_GET['export']) && $_GET['export'] === 'csv') {
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="grades.csv"');
+    $out = fopen('php://output', 'w');
+    fputcsv($out, ['Student ID', 'Student Name', 'Exam', 'Subject', 'Marks', 'Total Marks', 'Percentage', 'Grade']);
+    foreach ($grades as $grade) {
+        $percentage = $grade['total_marks'] > 0 ? ($grade['marks_obtained'] / $grade['total_marks']) * 100 : 0;
+        fputcsv($out, [
+            $grade['student_id'],
+            $grade['first_name'] . ' ' . $grade['last_name'],
+            $grade['exam_name'],
+            $grade['subject_name'],
+            $grade['marks_obtained'],
+            $grade['total_marks'],
+            number_format($percentage, 2),
+            $grade['grade'],
+        ]);
+    }
+    fclose($out);
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -41,6 +75,7 @@ $grades = $stmt->fetchAll();
                     <a href="add.php" class="btn btn-primary">
                         ➕ Add Grades
                     </a>
+                    <a href="?export=csv" class="btn btn-secondary">Export CSV</a>
                 <?php endif; ?>
             </div>
             
@@ -66,7 +101,7 @@ $grades = $stmt->fetchAll();
                                 <tbody>
                                     <?php foreach ($grades as $grade): ?>
                                         <?php
-                                        $percentage = ($grade['marks_obtained'] / $grade['total_marks']) * 100;
+                                        $percentage = $grade['total_marks'] > 0 ? ($grade['marks_obtained'] / $grade['total_marks']) * 100 : 0;
                                         ?>
                                         <tr>
                                             <td><strong><?php echo htmlspecialchars($grade['first_name'] . ' ' . $grade['last_name']); ?></strong></td>

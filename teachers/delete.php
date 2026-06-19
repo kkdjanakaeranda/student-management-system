@@ -30,10 +30,11 @@ try {
         unlink(TEACHER_PHOTO_DIR . $teacher['photo']);
     }
     
-    $query = "DELETE FROM teachers WHERE id = :id";
+    $query = "UPDATE teachers SET status = 'inactive' WHERE id = :id";
     $stmt = $db->prepare($query);
     $stmt->bindParam(':id', $id);
     $stmt->execute();
+    logAction($db, 'deactivated', 'teacher', (int)$id, $teacher['teacher_id'] ?? '');
     
     header('Location: index.php');
     exit();

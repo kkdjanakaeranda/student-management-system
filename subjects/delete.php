@@ -19,6 +19,7 @@ try {
     $stmt = $db->prepare($query);
     $stmt->bindParam(':id', $id);
     $stmt->execute();
+    logAction($db, 'deleted', 'subject', (int)$id);
     
     header('Location: index.php');
     exit();

@@ -5,11 +5,27 @@ requireLogin();
 $database = new Database();
 $db = $database->getConnection();
 
-$query = "SELECT s.*, u.email FROM students s 
-          LEFT JOIN users u ON s.user_id = u.id 
-          ORDER BY s.created_at DESC";
+$params = [];
+if (hasRole('admin')) {
+    $query = "SELECT s.*, u.email FROM students s
+              LEFT JOIN users u ON s.user_id = u.id
+              ORDER BY s.created_at DESC";
+} elseif (hasRole('teacher')) {
+    $query = "SELECT DISTINCT s.*, u.email FROM students s
+              LEFT JOIN users u ON s.user_id = u.id
+              JOIN enrollments e ON e.student_id = s.id
+              JOIN classes c ON c.id = e.class_id
+              WHERE c.teacher_id = :teacher_id
+              ORDER BY s.created_at DESC";
+    $params[':teacher_id'] = currentTeacherRowId($db);
+} else {
+    $query = "SELECT s.*, u.email FROM students s
+              LEFT JOIN users u ON s.user_id = u.id
+              WHERE s.id = :student_id";
+    $params[':student_id'] = currentStudentRowId($db);
+}
 $stmt = $db->prepare($query);
-$stmt->execute();
+$stmt->execute($params);
 $students = $stmt->fetchAll();
 ?>
 <!DOCTYPE html>
@@ -85,7 +101,7 @@ $students = $stmt->fetchAll();
                                                         <form method="POST" action="delete.php" style="display:inline" onsubmit="return confirm('Are you sure? ')">
                                                         <?php csrfField(); ?>
                                                         <input type="hidden" name="id" value="<?php echo $student['id']; ?>">
-                                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                        <button type="submit" class="btn btn-sm btn-danger">Deactivate</button>
                                                     </form>
                                                     <?php endif; ?>
                                                 </div>

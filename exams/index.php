@@ -5,13 +5,27 @@ requireLogin();
 $database = new Database();
 $db = $database->getConnection();
 
-$query = "SELECT e.*, c.class_name, s.subject_name 
-          FROM exams e 
-          JOIN classes c ON e.class_id = c.id 
-          JOIN subjects s ON e.subject_id = s.id 
+$params = [];
+$scopeSql = '';
+if (hasRole('teacher')) {
+    $scopeSql = ' WHERE c.teacher_id = :teacher_id';
+    $params[':teacher_id'] = currentTeacherRowId($db);
+} elseif (hasRole('student')) {
+    $scopeSql = " WHERE e.class_id IN (
+                    SELECT class_id FROM enrollments
+                    WHERE student_id = :student_id AND status = 'enrolled'
+                  )";
+    $params[':student_id'] = currentStudentRowId($db);
+}
+
+$query = "SELECT e.*, c.class_name, s.subject_name
+          FROM exams e
+          JOIN classes c ON e.class_id = c.id
+          JOIN subjects s ON e.subject_id = s.id
+          $scopeSql
           ORDER BY e.exam_date DESC";
 $stmt = $db->prepare($query);
-$stmt->execute();
+$stmt->execute($params);
 $exams = $stmt->fetchAll();
 ?>
 <!DOCTYPE html>

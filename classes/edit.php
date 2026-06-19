@@ -58,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':status', $status);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
+        logAction($db, 'updated', 'class', (int)$id, $class_name);
         
         header('Location: index.php');
         exit();

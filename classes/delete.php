@@ -15,10 +15,11 @@ verifyCsrf();
 $id = $_POST['id'] ?? 0;
 
 try {
-    $query = "DELETE FROM classes WHERE id = :id";
+    $query = "UPDATE classes SET status = 'inactive' WHERE id = :id";
     $stmt = $db->prepare($query);
     $stmt->bindParam(':id', $id);
     $stmt->execute();
+    logAction($db, 'deactivated', 'class', (int)$id);
     
     header('Location:  index.php');
     exit();

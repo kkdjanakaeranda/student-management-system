@@ -66,8 +66,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':joining_date', $joining_date);
         $stmt->bindParam(':photo', $photo_name);
         $stmt->execute();
+        $teacherRowId = (int)$db->lastInsertId();
         
         $db->commit();
+        logAction($db, 'created', 'teacher', $teacherRowId, $teacher_id);
         
         header('Location: index.php');
         exit();

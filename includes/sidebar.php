@@ -70,6 +70,15 @@
                 </li>
             <?php endif; ?>
             
+            <?php if (hasRole('admin') || hasRole('teacher')): ?>
+                <li>
+                    <a href="<?php echo BASE_URL; ?>reports/index.php" class="nav-link">
+                        <span class="nav-icon">Reports</span>
+                        <span class="nav-text">Reports</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+
             <li>
                 <a href="<?php echo BASE_URL; ?>announcements/index.php" class="nav-link">
                     <span class="nav-icon">📢</span>

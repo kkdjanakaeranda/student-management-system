@@ -7,17 +7,24 @@ if (!hasRole('admin') && !hasRole('teacher')) {
 
 $database = new Database();
 $db = $database->getConnection();
+$isAdmin = hasRole('admin');
+$teacherId = currentTeacherRowId($db);
 
 // Get classes
-$query = "SELECT * FROM classes WHERE status = 'active' ORDER BY class_name";
+$query = "SELECT * FROM classes WHERE status = 'active'"
+       . (!$isAdmin ? " AND teacher_id = :teacher_id" : "")
+       . " ORDER BY class_name";
 $stmt = $db->prepare($query);
-$stmt->execute();
+$stmt->execute(!$isAdmin ? [':teacher_id' => $teacherId] : []);
 $classes = $stmt->fetchAll();
 
 // Get subjects
-$query = "SELECT * FROM subjects ORDER BY subject_name";
+$query = "SELECT s.* FROM subjects s
+          JOIN classes c ON c.id = s.class_id"
+       . (!$isAdmin ? " WHERE c.teacher_id = :teacher_id" : "")
+       . " ORDER BY s.subject_name";
 $stmt = $db->prepare($query);
-$stmt->execute();
+$stmt->execute(!$isAdmin ? [':teacher_id' => $teacherId] : []);
 $subjects = $stmt->fetchAll();
 
 $error = '';
@@ -32,24 +39,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $exam_date = $_POST['exam_date'];
     $total_marks = $_POST['total_marks'];
     $duration = $_POST['duration'];
+
+    if (!$isAdmin) {
+        $allowed = $db->prepare("SELECT id FROM classes WHERE id = :class_id AND teacher_id = :teacher_id LIMIT 1");
+        $allowed->execute([':class_id' => $class_id, ':teacher_id' => $teacherId]);
+        if (!$allowed->fetch()) {
+            $error = 'You do not have permission to schedule exams for this class.';
+        }
+    }
     
-    try {
-        $query = "INSERT INTO exams (exam_name, exam_type, class_id, subject_id, exam_date, total_marks, duration) 
-                  VALUES (:exam_name, :exam_type, :class_id, :subject_id, :exam_date, :total_marks, :duration)";
-        $stmt = $db->prepare($query);
-        $stmt->bindParam(':exam_name', $exam_name);
-        $stmt->bindParam(':exam_type', $exam_type);
-        $stmt->bindParam(':class_id', $class_id);
-        $stmt->bindParam(':subject_id', $subject_id);
-        $stmt->bindParam(':exam_date', $exam_date);
-        $stmt->bindParam(':total_marks', $total_marks);
-        $stmt->bindParam(':duration', $duration);
-        $stmt->execute();
-        
-        header('Location: index.php');
-        exit();
-    } catch (Exception $e) {
-        $error = 'Error: ' .  $e->getMessage();
+    if (!$error) {
+        try {
+            $query = "INSERT INTO exams (exam_name, exam_type, class_id, subject_id, exam_date, total_marks, duration) 
+                      VALUES (:exam_name, :exam_type, :class_id, :subject_id, :exam_date, :total_marks, :duration)";
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(':exam_name', $exam_name);
+            $stmt->bindParam(':exam_type', $exam_type);
+            $stmt->bindParam(':class_id', $class_id);
+            $stmt->bindParam(':subject_id', $subject_id);
+            $stmt->bindParam(':exam_date', $exam_date);
+            $stmt->bindParam(':total_marks', $total_marks);
+            $stmt->bindParam(':duration', $duration);
+            $stmt->execute();
+            logAction($db, 'created', 'exam', (int)$db->lastInsertId(), $exam_name);
+            
+            header('Location: index.php');
+            exit();
+        } catch (Exception $e) {
+            $error = 'Error: ' .  $e->getMessage();
+        }
     }
 }
 ?>

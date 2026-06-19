@@ -40,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':academic_year', $academic_year);
         $stmt->bindParam(':room_number', $room_number);
         $stmt->execute();
+        logAction($db, 'created', 'class', (int)$db->lastInsertId(), $class_name);
         
         header('Location: index.php');
         exit();
