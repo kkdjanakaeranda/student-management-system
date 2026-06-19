@@ -79,7 +79,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute();
         
         $db->commit();
-        logAction($db, 'updated', 'student', (int)$id);
         
         header('Location: view.php?id=' . $id);
         exit();

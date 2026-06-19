@@ -38,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':class_id', $class_id);
         $stmt->bindParam(':teacher_id', $teacher_id);
         $stmt->execute();
-        logAction($db, 'created', 'subject', (int)$db->lastInsertId(), $subject_code);
         
         header('Location: index.php');
         exit();

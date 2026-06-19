@@ -83,7 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $examId) {
                     $upsert->execute([':sid'=>$studentId, ':eid'=>$examId, ':marks'=>$marks, ':grade'=>$grade]);
                 }
                 $db->commit();
-                logAction($db, 'updated', 'grades', $examId, 'Grades saved for exam.');
                 $message = 'Grades saved successfully.'; $msgType = 'success';
             } catch (Exception $e) {
                 $db->rollBack();

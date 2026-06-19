@@ -37,7 +37,7 @@ A complete, modern, and beautiful Student Management System built with PHP, MySQ
 - Daily attendance marking
 - Multiple status options (Present, Absent, Late, Excused)
 - Class-wise attendance tracking
-- Date-based attendance reports
+- Date-based attendance view
 
 ### 📋 Examination & Grading
 - Exam scheduling (Midterm, Final, Quiz, Assignment)
@@ -217,7 +217,7 @@ student-management-system/
 - Manage students, teachers, classes, courses, subjects
 - Mark attendance and enter grades
 - Post and manage announcements
-- View all reports
+- View academic records
 
 ### Teacher
 - View students

@@ -61,7 +61,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bindParam(':total_marks', $total_marks);
             $stmt->bindParam(':duration', $duration);
             $stmt->execute();
-            logAction($db, 'created', 'exam', (int)$db->lastInsertId(), $exam_name);
             
             header('Location: index.php');
             exit();

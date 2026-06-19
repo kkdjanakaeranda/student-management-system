@@ -69,7 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $studentRowId = (int)$db->lastInsertId();
         
         $db->commit();
-        logAction($db, 'created', 'student', $studentRowId, $student_id);
         
         header('Location: index.php');
         exit();

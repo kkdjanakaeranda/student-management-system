@@ -37,7 +37,6 @@ try {
     $stmt = $db->prepare($query);
     $stmt->bindParam(':id', $id);
     $stmt->execute();
-    logAction($db, 'deactivated', 'student', (int)$id, $student['student_id'] ?? '');
     
     header('Location: index.php');
     exit();

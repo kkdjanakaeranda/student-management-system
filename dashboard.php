@@ -269,29 +269,41 @@ if ($role === 'student' && $linkedId) {
         <?php endif; ?>
 
         <div class="card">
-            <div class="card-header"><h2>📢 Announcements</h2></div>
+            <div class="card-header">
+                <h2>Announcements</h2>
+                <a href="announcements/index.php" class="btn btn-sm btn-primary">View All</a>
+            </div>
             <div class="card-body">
                 <?php if ($announcements): ?>
-                <div class="announcements-list">
-                    <?php foreach ($announcements as $ann): ?>
-                    <div class="announcement-item">
-                        <div class="announcement-header">
-                            <h4><?php echo htmlspecialchars($ann['title']); ?></h4>
-                            <span class="badge badge-<?php echo htmlspecialchars($ann['priority']); ?>">
-                                <?php echo ucfirst(htmlspecialchars($ann['priority'])); ?>
-                            </span>
-                        </div>
-                        <p><?php echo mb_substr(htmlspecialchars($ann['content']), 0, 200); ?>…</p>
-                        <div class="announcement-footer">
-                            <span>👤 <?php echo htmlspecialchars($ann['poster_name'] ?? 'System'); ?></span>
-                            <span>📅 <?php echo date('M d, Y · h:i A', strtotime($ann['created_at'])); ?></span>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Priority</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($announcements as $ann): ?>
+                        <tr>
+                            <td>
+                                <strong><?php echo htmlspecialchars($ann['title']); ?></strong>
+                                <div style="color:var(--gray-medium);font-size:0.8125rem;margin-top:4px;">
+                                    <?php echo mb_substr(htmlspecialchars($ann['content']), 0, 80); ?><?php echo mb_strlen($ann['content']) > 80 ? '...' : ''; ?>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge badge-<?php echo htmlspecialchars($ann['priority']); ?>">
+                                    <?php echo ucfirst(htmlspecialchars($ann['priority'])); ?>
+                                </span>
+                            </td>
+                            <td><?php echo date('M d, Y', strtotime($ann['created_at'])); ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
                 <?php else: ?>
                 <div class="empty-state">
-                    <div class="empty-state-icon">📭</div>
                     <h3>No Announcements</h3>
                     <p>Nothing to show right now.</p>
                 </div>

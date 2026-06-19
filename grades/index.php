@@ -28,27 +28,6 @@ $stmt = $db->prepare($query);
 $stmt->execute($params);
 $grades = $stmt->fetchAll();
 
-if (isset($_GET['export']) && $_GET['export'] === 'csv') {
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="grades.csv"');
-    $out = fopen('php://output', 'w');
-    fputcsv($out, ['Student ID', 'Student Name', 'Exam', 'Subject', 'Marks', 'Total Marks', 'Percentage', 'Grade']);
-    foreach ($grades as $grade) {
-        $percentage = $grade['total_marks'] > 0 ? ($grade['marks_obtained'] / $grade['total_marks']) * 100 : 0;
-        fputcsv($out, [
-            $grade['student_id'],
-            $grade['first_name'] . ' ' . $grade['last_name'],
-            $grade['exam_name'],
-            $grade['subject_name'],
-            $grade['marks_obtained'],
-            $grade['total_marks'],
-            number_format($percentage, 2),
-            $grade['grade'],
-        ]);
-    }
-    fclose($out);
-    exit();
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -75,7 +54,6 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
                     <a href="add.php" class="btn btn-primary">
                         ➕ Add Grades
                     </a>
-                    <a href="?export=csv" class="btn btn-secondary">Export CSV</a>
                 <?php endif; ?>
             </div>
             

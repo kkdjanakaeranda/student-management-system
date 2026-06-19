@@ -64,7 +64,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $classId && $message === '') {
                 $ins->execute([':sid'=>$studentId, ':cid'=>$classId, ':date'=>$date, ':status'=>$status]);
             }
             $db->commit();
-            logAction($db, 'marked', 'attendance', $classId, $date);
             $message = 'Attendance saved for '.date('M d, Y', strtotime($date)).'.';
             $msgType = 'success';
         } catch (Exception $e) {

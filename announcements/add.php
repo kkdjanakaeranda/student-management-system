@@ -2,6 +2,11 @@
 require_once '../config/config.php';
 requireLogin();
 
+if (!hasRole('admin') && !hasRole('teacher')) {
+    header('Location: index.php');
+    exit();
+}
+
 $database = new Database();
 $db = $database->getConnection();
 
@@ -10,8 +15,8 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf();
 
-    $title = $_POST['title'];
-    $content = $_POST['content'];
+    $title = trim($_POST['title'] ?? '');
+    $content = trim($_POST['content'] ?? '');
     $target_audience = $_POST['target_audience'];
     $priority = $_POST['priority'];
     
@@ -25,7 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':target_audience', $target_audience);
         $stmt->bindParam(':priority', $priority);
         $stmt->execute();
-        logAction($db, 'created', 'announcement', (int)$db->lastInsertId(), $title);
         
         header('Location: index.php');
         exit();
@@ -41,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post Announcement - <?php echo SITE_NAME; ?></title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter: wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <?php include '../includes/header.php'; ?>
@@ -52,10 +56,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <main class="main-content">
             <div class="page-header">
                 <div>
-                    <h1>➕ Post Announcement</h1>
+                    <h1>Post Announcement</h1>
                     <p>Create a new announcement</p>
                 </div>
-                <a href="index.php" class="btn btn-secondary">← Back</a>
+                <a href="index.php" class="btn btn-secondary">Back</a>
             </div>
             
             <?php if ($error): ?>
@@ -67,22 +71,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <form method="POST" class="form-grid">
                         <?php csrfField(); ?>
                         <div class="form-section">
-                            <h3>📋 Announcement Details</h3>
+                            <h3>Announcement Information</h3>
                             
                             <div class="form-group">
                                 <label for="title" >Title <span>*</span></label>
-                                <input type="text" id="title" name="title"  required>
+                                <input type="text" id="title" name="title" class="form-control" required>
                             </div>
                             
                             <div class="form-group">
                                 <label for="content">Content <span>*</span></label>
-                                <textarea id="content" name="content" rows="8" required></textarea>
+                                <textarea id="content" name="content" class="form-control" rows="8" required></textarea>
                             </div>
                             
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="target_audience">Target Audience <span>*</span></label>
-                                    <select id="target_audience" name="target_audience" required>
+                                    <select id="target_audience" name="target_audience" class="form-control" required>
                                         <option value="all">All</option>
                                         <option value="students">Students Only</option>
                                         <option value="teachers">Teachers Only</option>
@@ -91,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 
                                 <div class="form-group">
                                     <label for="priority">Priority <span>*</span></label>
-                                    <select id="priority" name="priority" required>
+                                    <select id="priority" name="priority" class="form-control" required>
                                         <option value="low">Low</option>
                                         <option value="medium" selected>Medium</option>
                                         <option value="high">High</option>
@@ -101,8 +105,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         
                         <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">📢 Post Announcement</button>
-                            <a href="index.php" class="btn btn-secondary">❌ Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Announcement</button>
+                            <a href="index.php" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>

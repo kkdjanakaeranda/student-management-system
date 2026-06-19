@@ -37,7 +37,6 @@ if (hasRole('admin') && $_SERVER['REQUEST_METHOD'] === 'POST') {
                  VALUES (:student_id, :class_id, CURDATE(), 'enrolled')"
             );
             $enroll->execute([':student_id' => $student['id'], ':class_id' => $classId]);
-            logAction($db, 'created', 'enrollment', (int)$db->lastInsertId(), 'Student enrolled in class.');
             $message = 'Student enrolled successfully.';
             $messageType = 'success';
         } catch (Exception $e) {

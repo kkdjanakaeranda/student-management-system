@@ -43,7 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bindParam(':status', $status);
                 
                 if ($stmt->execute()) {
-                    logAction($db, 'created', 'course', (int)$db->lastInsertId(), $course_code);
                     $success = 'Course added successfully!  Redirecting... ';
                     header('refresh:2;url=index.php');
                 } else {

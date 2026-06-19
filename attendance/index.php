@@ -27,24 +27,6 @@ $stmt = $db->prepare($query);
 $stmt->execute($params);
 $attendances = $stmt->fetchAll();
 
-if (isset($_GET['export']) && $_GET['export'] === 'csv') {
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="attendance-' . $today . '.csv"');
-    $out = fopen('php://output', 'w');
-    fputcsv($out, ['Student ID', 'Student Name', 'Class', 'Date', 'Status', 'Remarks']);
-    foreach ($attendances as $attendance) {
-        fputcsv($out, [
-            $attendance['student_id'],
-            $attendance['first_name'] . ' ' . $attendance['last_name'],
-            $attendance['class_name'],
-            $attendance['date'],
-            $attendance['status'],
-            $attendance['remarks'] ?? '',
-        ]);
-    }
-    fclose($out);
-    exit();
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -71,7 +53,6 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
                     <a href="mark.php" class="btn btn-primary">
                         ➕ Mark Attendance
                     </a>
-                    <a href="?export=csv" class="btn btn-secondary">Export CSV</a>
                 <?php endif; ?>
             </div>
             

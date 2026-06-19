@@ -142,24 +142,6 @@ function canAccessStudent(PDO $db, int $studentId): bool {
     return (bool)$stmt->fetch();
 }
 
-function logAction(PDO $db, string $action, string $entityType, ?int $entityId = null, string $details = ''): void {
-    try {
-        $stmt = $db->prepare(
-            "INSERT INTO audit_logs (user_id, action, entity_type, entity_id, details)
-             VALUES (:user_id, :action, :entity_type, :entity_id, :details)"
-        );
-        $stmt->execute([
-            ':user_id' => $_SESSION['user_id'] ?? null,
-            ':action' => $action,
-            ':entity_type' => $entityType,
-            ':entity_id' => $entityId,
-            ':details' => $details,
-        ]);
-    } catch (Exception $e) {
-        // Audit logging should never break the user workflow.
-    }
-}
-
 // ── CSRF helpers ──────────────────────────────────────────────────────────────
 function csrfToken(): string {
     if (empty($_SESSION['csrf_token'])) {

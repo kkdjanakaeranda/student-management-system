@@ -11,8 +11,6 @@ $in_subfolder = (strpos($_SERVER['PHP_SELF'], '/students/') !== false ||
                  strpos($_SERVER['PHP_SELF'], '/attendance/') !== false  || 
                  strpos($_SERVER['PHP_SELF'], '/exams/') !== false ||
                  strpos($_SERVER['PHP_SELF'], '/grades/') !== false ||
-                 strpos($_SERVER['PHP_SELF'], '/reports/') !== false ||
-                 strpos($_SERVER['PHP_SELF'], '/account/') !== false ||
                  strpos($_SERVER['PHP_SELF'], '/announcements/') !== false );
 $prefix = $in_subfolder ? '../' : '';
 
@@ -281,9 +279,6 @@ $roleClass = $roleColors[$_SESSION['role'] ?? 'student'] ?? 'role-student';
             </div>
 
             <!-- Logout Button -->
-            <a href="<?php echo $prefix; ?>account/change_password.php" class="logout-btn" style="background: rgba(99, 102, 241, 0.1); color: #4F46E5; border-color: rgba(99, 102, 241, 0.2);">
-                <span>Account</span>
-            </a>
             <a href="<?php echo $prefix; ?>logout.php" class="logout-btn">
                 <span>🚪</span>
                 <span>Logout</span>

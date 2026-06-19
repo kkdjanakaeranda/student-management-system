@@ -29,8 +29,8 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf();
 
-    $title = $_POST['title'];
-    $content = $_POST['content'];
+    $title = trim($_POST['title'] ?? '');
+    $content = trim($_POST['content'] ?? '');
     $target_audience = $_POST['target_audience'];
     $priority = $_POST['priority'];
     
@@ -45,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':priority', $priority);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
-        logAction($db, 'updated', 'announcement', (int)$id, $title);
         
         header('Location: index.php');
         exit();
@@ -72,10 +71,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <main class="main-content">
             <div class="page-header">
                 <div>
-                    <h1>✏️ Edit Announcement</h1>
+                    <h1>Edit Announcement</h1>
                     <p>Update announcement details</p>
                 </div>
-                <a href="index.php" class="btn btn-secondary">← Back</a>
+                <a href="index.php" class="btn btn-secondary">Back</a>
             </div>
             
             <?php if ($error): ?>
@@ -87,22 +86,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <form method="POST" class="form-grid">
                         <?php csrfField(); ?>
                         <div class="form-section">
-                            <h3>📋 Announcement Details</h3>
+                            <h3>Announcement Information</h3>
                             
                             <div class="form-group">
                                 <label for="title">Title <span>*</span></label>
-                                <input type="text" id="title" name="title" value="<?php echo htmlspecialchars($announcement['title']); ?>" required>
+                                <input type="text" id="title" name="title" class="form-control" value="<?php echo htmlspecialchars($announcement['title']); ?>" required>
                             </div>
                             
                             <div class="form-group">
                                 <label for="content">Content <span>*</span></label>
-                                <textarea id="content" name="content" rows="8" required><?php echo htmlspecialchars($announcement['content']); ?></textarea>
+                                <textarea id="content" name="content" class="form-control" rows="8" required><?php echo htmlspecialchars($announcement['content']); ?></textarea>
                             </div>
                             
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="target_audience">Target Audience <span>*</span></label>
-                                    <select id="target_audience" name="target_audience" required>
+                                    <select id="target_audience" name="target_audience" class="form-control" required>
                                         <option value="all" <?php echo $announcement['target_audience'] == 'all' ? 'selected' : ''; ?>>All</option>
                                         <option value="students" <?php echo $announcement['target_audience'] == 'students' ? 'selected' : ''; ?>>Students Only</option>
                                         <option value="teachers" <?php echo $announcement['target_audience'] == 'teachers' ? 'selected' : ''; ?>>Teachers Only</option>
@@ -111,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 
                                 <div class="form-group">
                                     <label for="priority">Priority <span>*</span></label>
-                                    <select id="priority" name="priority" required>
+                                    <select id="priority" name="priority" class="form-control" required>
                                         <option value="low" <?php echo $announcement['priority'] == 'low' ? 'selected' : ''; ?>>Low</option>
                                         <option value="medium" <?php echo $announcement['priority'] == 'medium' ? 'selected' : ''; ?>>Medium</option>
                                         <option value="high" <?php echo $announcement['priority'] == 'high' ? 'selected' :  ''; ?>>High</option>
@@ -121,8 +120,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         
                         <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">💾 Update Announcement</button>
-                            <a href="index.php" class="btn btn-secondary">❌ Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="index.php" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>
