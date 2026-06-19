@@ -39,8 +39,9 @@ if ($filter !== 'all') {
 }
 
 if ($search !== '') {
-    $where[] = "(a.title LIKE :search OR a.content LIKE :search)";
-    $params[':search'] = '%' . $search . '%';
+    $where[] = "(a.title LIKE :search1 OR a.content LIKE :search2)";
+    $params[':search1'] = '%' . $search . '%';
+    $params[':search2'] = '%' . $search . '%';
 }
 
 if ($where) {

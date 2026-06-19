@@ -396,6 +396,10 @@ body {
     background:  linear-gradient(135deg, rgba(99, 102, 241, 0.02), rgba(99, 102, 241, 0.05));
 }
 
+.table-responsive {
+    overflow-x: auto;
+}
+
 /* ============================================
    STATS CARDS (Dashboard)
    ============================================ */
@@ -559,6 +563,11 @@ body {
 .badge-inactive {
     background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.2));
     color: #DC2626;
+}
+
+.badge-enrolled {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.2));
+    color: #2563EB;
 }
 
 /* ============================================
@@ -969,6 +978,118 @@ select.form-control {
     padding: 0.5rem 1rem;
 }
 
+.profile-summary {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2rem;
+    border-bottom: 1px solid var(--border-color);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.03), rgba(16, 185, 129, 0.04));
+}
+
+.profile-summary-photo {
+    width: 112px;
+    height: 112px;
+    border-radius: 16px;
+    object-fit: cover;
+    border: 4px solid var(--white);
+    box-shadow: 0 8px 20px rgba(31, 41, 55, 0.12);
+    flex: 0 0 auto;
+}
+
+.profile-summary-content h2 {
+    font-size: 1.5rem;
+    color: var(--dark-color);
+    margin: 0 0 0.5rem;
+}
+
+.profile-summary-meta {
+    color: var(--gray-medium);
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.profile-summary-actions,
+.attendance-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.attendance-status-options {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.attendance-status-options label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--white);
+    cursor: pointer;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+.attendance-status-options input {
+    accent-color: var(--primary-color);
+}
+
+.attendance-table-wrap {
+    overflow-x: auto;
+}
+
+.profile-card {
+    margin-bottom: 1.25rem;
+}
+
+.profile-card .profile-summary {
+    gap: 1.25rem;
+    padding: 1.25rem 1.5rem;
+}
+
+.profile-card .profile-summary-photo {
+    width: 88px;
+    height: 88px;
+    border-radius: 12px;
+}
+
+.profile-card .profile-summary-content h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.profile-card .profile-summary-meta {
+    margin-bottom: 0.625rem;
+}
+
+.profile-card .details-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.profile-card .detail-item {
+    padding: 1rem;
+    border-radius: 10px;
+}
+
+.profile-card .detail-item p {
+    font-size: 1rem;
+    overflow-wrap: anywhere;
+}
+
+.enrollment-form {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
 /* Detail Item Variants */
 .detail-item-primary {
     border-left-color: var(--primary-color);
@@ -1232,6 +1353,36 @@ select.form-control {
 
     .details-grid {
         grid-template-columns: 1fr;
+        padding: 1rem;
+    }
+
+    .profile-summary {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 1.25rem;
+    }
+
+    .profile-summary-photo {
+        width: 96px;
+        height: 96px;
+    }
+
+    .profile-card .profile-summary {
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .profile-card .profile-summary-photo {
+        width: 72px;
+        height: 72px;
+    }
+
+    .profile-card .details-grid {
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .enrollment-form {
         padding: 1rem;
     }
 

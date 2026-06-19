@@ -10,7 +10,6 @@ $database = new Database();
 $db       = $database->getConnection();
 $isAdmin  = hasRole('admin');
 
-// Get teacher row id via user_id link (teachers table links via user_id)
 $teacherRowId = 0;
 if (!$isAdmin) {
     $s = $db->prepare("SELECT id FROM teachers WHERE user_id=:uid LIMIT 1");
@@ -19,7 +18,6 @@ if (!$isAdmin) {
     $teacherRowId = $r ? (int)$r['id'] : 0;
 }
 
-// Classes scoped to teacher — column is class_name (not name)
 $classStmt = $db->prepare(
     "SELECT c.id, c.class_name, c.section
      FROM classes c
@@ -33,7 +31,6 @@ $classId      = (int)($_GET['class_id'] ?? ($_POST['class_id'] ?? 0));
 $selectedDate = $_POST['attendance_date'] ?? $_GET['date'] ?? date('Y-m-d');
 $message = ''; $msgType = '';
 
-// Verify teacher owns class
 if ($classId && !$isAdmin && $teacherRowId) {
     $own = $db->prepare("SELECT id FROM classes WHERE id=:id AND teacher_id=:tid LIMIT 1");
     $own->execute([':id' => $classId, ':tid' => $teacherRowId]);
@@ -43,7 +40,6 @@ if ($classId && !$isAdmin && $teacherRowId) {
     }
 }
 
-// Save attendance — no created_by column in schema
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $classId && $message === '') {
     verifyCsrf();
     $date    = $_POST['attendance_date'] ?? date('Y-m-d');
@@ -73,7 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $classId && $message === '') {
     }
 }
 
-// Load enrolled students — status='enrolled' (not 'active') in this schema
 $students = [];
 if ($classId) {
     $stuStmt = $db->prepare(
@@ -101,7 +96,7 @@ if ($classId) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mark Attendance — <?php echo SITE_NAME; ?></title>
+    <title>Mark Attendance - <?php echo SITE_NAME; ?></title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -110,22 +105,28 @@ if ($classId) {
 <div class="container">
     <?php include '../includes/sidebar.php'; ?>
     <main class="main-content">
-        <div class="page-header"><h1>✅ Mark Attendance</h1></div>
+        <div class="page-header">
+            <div>
+                <h1>Mark Attendance</h1>
+                <p class="page-description">Select a class and record attendance for the day</p>
+            </div>
+            <a href="index.php" class="btn btn-secondary">Back to Attendance</a>
+        </div>
 
         <?php if ($message): ?>
             <div class="alert alert-<?php echo $msgType; ?>"><?php echo htmlspecialchars($message); ?></div>
         <?php endif; ?>
 
-        <div class="card" style="margin-bottom:20px">
+        <div class="card">
             <div class="card-header">
                 <h2>Select Class</h2>
             </div>
-            <div class="card-body">
-                <form method="GET" action="" style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap">
-                    <div class="form-group" style="margin:0;flex:1;min-width:200px">
+            <div class="card-body p-3">
+                <form method="GET" action="" class="attendance-toolbar">
+                    <div class="form-group" style="margin:0;flex:1;min-width:220px">
                         <label>Class</label>
                         <select name="class_id" class="form-control" onchange="this.form.submit()">
-                            <option value="">— Select a class —</option>
+                            <option value="">Select a class</option>
                             <?php foreach ($classes as $cls): ?>
                                 <option value="<?php echo $cls['id']; ?>" <?php echo ($cls['id']==$classId)?'selected':''; ?>>
                                     <?php echo htmlspecialchars($cls['class_name'].' ('.$cls['section'].')'); ?>
@@ -147,54 +148,54 @@ if ($classId) {
         <?php if ($classId && $selectedClass): ?>
         <div class="card">
             <div class="card-header">
-                <h2><?php echo htmlspecialchars($selectedClass['class_name']); ?>
-                    — <?php echo date('l, M d Y', strtotime($selectedDate)); ?></h2>
+                <h2><?php echo htmlspecialchars($selectedClass['class_name']); ?> - <?php echo date('l, M d Y', strtotime($selectedDate)); ?></h2>
                 <span class="badge badge-active"><?php echo count($students); ?> enrolled students</span>
             </div>
-            <div class="card-body" style="padding: 2rem;">
+            <div class="card-body">
                 <?php if (empty($students)): ?>
                     <div class="empty-state">
-                        <div class="empty-state-icon">👥</div>
                         <h3>No enrolled students</h3>
-                        <p>No active students are enrolled in this class. Go to Students and enrol them first.</p>
+                        <p>No active students are enrolled in this class. Go to Students and enroll them first.</p>
                     </div>
                 <?php else: ?>
-                <form method="POST" action="">
+                <form method="POST" action="" class="p-3">
                     <?php csrfField(); ?>
-                    <input type="hidden" name="class_id"        value="<?php echo $classId; ?>">
+                    <input type="hidden" name="class_id" value="<?php echo $classId; ?>">
                     <input type="hidden" name="attendance_date" value="<?php echo htmlspecialchars($selectedDate); ?>">
-                    <div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap">
-                        <button type="button" class="btn btn-sm btn-success" onclick="markAll('present')">✅ All Present</button>
-                        <button type="button" class="btn btn-sm btn-danger"  onclick="markAll('absent')">❌ All Absent</button>
+                    <div class="attendance-toolbar mb-2">
+                        <button type="button" class="btn btn-sm btn-success" onclick="markAll('present')">All Present</button>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="markAll('absent')">All Absent</button>
                     </div>
-                    <table class="table">
-                        <thead><tr><th>#</th><th>Reg No.</th><th>Student</th><th>Status</th></tr></thead>
-                        <tbody>
-                        <?php foreach ($students as $i => $stu):
-                            $existing = $stu['existing_status'] ?: 'present'; ?>
-                            <tr>
-                                <td><?php echo $i+1; ?></td>
-                                <td><?php echo htmlspecialchars($stu['reg_no']); ?></td>
-                                <td><?php echo htmlspecialchars($stu['first_name'].' '.$stu['last_name']); ?></td>
-                                <td>
-                                    <div style="display:flex;gap:12px;flex-wrap:wrap">
-                                        <?php foreach (['present','absent','late','excused'] as $s): ?>
-                                        <label style="display:flex;align-items:center;gap:4px;cursor:pointer">
-                                            <input type="radio"
-                                                   name="attendance[<?php echo $stu['id']; ?>]"
-                                                   value="<?php echo $s; ?>"
-                                                   <?php echo ($existing===$s)?'checked':''; ?>>
-                                            <?php echo ucfirst($s); ?>
-                                        </label>
-                                        <?php endforeach; ?>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                    <div style="margin-top:20px">
-                        <button type="submit" class="btn btn-primary btn-lg">💾 Save Attendance</button>
+                    <div class="attendance-table-wrap">
+                        <table class="data-table">
+                            <thead><tr><th>#</th><th>Reg No.</th><th>Student</th><th>Status</th></tr></thead>
+                            <tbody>
+                            <?php foreach ($students as $i => $stu):
+                                $existing = $stu['existing_status'] ?: 'present'; ?>
+                                <tr>
+                                    <td><?php echo $i+1; ?></td>
+                                    <td><strong><?php echo htmlspecialchars($stu['reg_no']); ?></strong></td>
+                                    <td><?php echo htmlspecialchars($stu['first_name'].' '.$stu['last_name']); ?></td>
+                                    <td>
+                                        <div class="attendance-status-options">
+                                            <?php foreach (['present','absent','late','excused'] as $s): ?>
+                                            <label>
+                                                <input type="radio"
+                                                       name="attendance[<?php echo $stu['id']; ?>]"
+                                                       value="<?php echo $s; ?>"
+                                                       <?php echo ($existing===$s)?'checked':''; ?>>
+                                                <?php echo ucfirst($s); ?>
+                                            </label>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-lg">Save Attendance</button>
                     </div>
                 </form>
                 <?php endif; ?>

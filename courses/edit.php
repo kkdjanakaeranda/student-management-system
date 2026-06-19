@@ -105,7 +105,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <p class="page-description">Update course information</p>
                 </div>
                 <div style="display: flex; gap: 0.5rem;">
-                    <a href="view.php?id=<?php echo $course['id']; ?>" class="btn btn-info">View Details</a>
                     <a href="index.php" class="btn btn-secondary">Back to List</a>
                 </div>
             </div>

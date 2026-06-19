@@ -70,8 +70,61 @@ if (hasRole('admin')) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Student - <?php echo SITE_NAME; ?></title>
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css?v=<?php echo filemtime('../assets/css/style.css'); ?>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .person-view .profile-card .profile-summary {
+            display: grid;
+            grid-template-columns: 96px minmax(0, 1fr);
+            align-items: center;
+            gap: 1.25rem;
+            padding: 1.25rem 1.5rem;
+            min-height: auto;
+        }
+
+        .person-view .profile-card .profile-summary-photo {
+            width: 96px;
+            height: 96px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        .person-view .profile-card .profile-summary-content h2 {
+            margin: 0 0 0.25rem;
+            font-size: 1.25rem;
+        }
+
+        .person-view .profile-card .profile-summary-meta {
+            margin: 0 0 0.625rem;
+        }
+
+        .person-view .profile-card .details-grid {
+            padding: 1.25rem 1.5rem 1.5rem;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        }
+
+        .person-view .enrollment-form {
+            display: grid;
+            grid-template-columns: minmax(240px, 1fr) auto;
+            align-items: end;
+            gap: 0.75rem;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .person-view .enrollment-form .form-group {
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .person-view .profile-card .profile-summary,
+            .person-view .enrollment-form {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <?php include '../includes/header.php'; ?>
@@ -79,17 +132,17 @@ if (hasRole('admin')) {
     <div class="container">
         <?php include '../includes/sidebar.php'; ?>
         
-        <main class="main-content">
+        <main class="main-content person-view">
             <div class="page-header">
                 <div>
-                    <h1>👨‍🎓 Student Details</h1>
-                    <p>Complete information about the student</p>
+                    <h1>Student Details</h1>
+                    <p class="page-description">View student information and class enrollments</p>
                 </div>
-                <div style="display: flex; gap: 10px;">
+                <div class="action-buttons">
                     <?php if (hasRole('admin')): ?>
-                        <a href="edit.php?id=<?php echo $student['id']; ?>" class="btn btn-warning">✏️ Edit</a>
+                        <a href="edit.php?id=<?php echo $student['id']; ?>" class="btn btn-warning">Edit</a>
                     <?php endif; ?>
-                    <a href="index.php" class="btn btn-secondary">← Back</a>
+                    <a href="index.php" class="btn btn-secondary">Back to List</a>
                 </div>
             </div>
 
@@ -97,106 +150,68 @@ if (hasRole('admin')) {
                 <div class="alert alert-<?php echo $messageType; ?>"><?php echo e($message); ?></div>
             <?php endif; ?>
             
-            <div class="content-grid">
-                <div class="card">
-                    <div class="card-header">
-                        <h2>📸 Photo</h2>
-                    </div>
-                    <div class="card-body" style="text-align: center;">
-                        <img src="<?php echo $student['photo'] ? '../uploads/students/' . $student['photo'] : '../assets/images/default-avatar.svg'; ?>" 
-                             alt="Student Photo" 
-                             style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover; border: 5px solid var(--primary-color);">
-                        <h3 style="margin-top: 20px;"><?php echo htmlspecialchars($student['first_name'] . ' ' . $student['last_name']); ?></h3>
-                        <p class="badge badge-<?php echo $student['status']; ?>" style="margin-top: 10px;">
-                            <?php echo ucfirst($student['status']); ?>
-                        </p>
+            <div class="card profile-card">
+                <div class="profile-summary">
+                    <img src="<?php echo $student['photo'] ? '../uploads/students/' . $student['photo'] : '../assets/images/default-avatar.svg'; ?>" 
+                         alt="Student Photo" 
+                         class="profile-summary-photo">
+                    <div class="profile-summary-content">
+                        <h2><?php echo e($student['first_name'] . ' ' . $student['last_name']); ?></h2>
+                        <p class="profile-summary-meta"><?php echo e($student['student_id']); ?><?php echo !empty($student['email']) ? ' - ' . e($student['email']) : ''; ?></p>
+                        <span class="badge badge-<?php echo e($student['status']); ?>"><?php echo ucfirst(e($student['status'])); ?></span>
                     </div>
                 </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h2>ℹ️ Personal Information</h2>
-                    </div>
-                    <div class="card-body">
-                        <div style="display: grid; gap: 15px;">
-                            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--light-color); border-radius: 8px;">
-                                <strong>Student ID:</strong>
-                                <span><?php echo htmlspecialchars($student['student_id']); ?></span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--light-color); border-radius: 8px;">
-                                <strong>Date of Birth:</strong>
-                                <span><?php echo date('F d, Y', strtotime($student['date_of_birth'])); ?></span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--light-color); border-radius: 8px;">
-                                <strong>Gender:</strong>
-                                <span><?php echo htmlspecialchars($student['gender']); ?></span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding:  12px; background: var(--light-color); border-radius: 8px;">
-                                <strong>Phone:</strong>
-                                <span><?php echo htmlspecialchars($student['phone'] ?? 'N/A'); ?></span>
-                            </div>
-                            <div style="display: flex; justify-content:  space-between; padding: 12px; background: var(--light-color); border-radius: 8px;">
-                                <strong>Email:</strong>
-                                <span><?php echo htmlspecialchars($student['email']); ?></span>
-                            </div>
-                            <div style="padding: 12px; background: var(--light-color); border-radius: 8px;">
-                                <strong>Address:</strong>
-                                <p style="margin-top: 8px;"><?php echo htmlspecialchars($student['address'] ?? 'N/A'); ?></p>
-                            </div>
+                <div class="card-body">
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <label>Student ID</label>
+                            <p><?php echo e($student['student_id']); ?></p>
                         </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="content-grid">
-                <div class="card">
-                    <div class="card-header">
-                        <h2>👨‍👩‍👧 Guardian Information</h2>
-                    </div>
-                    <div class="card-body">
-                        <div style="display: grid; gap: 15px;">
-                            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--light-color); border-radius: 8px;">
-                                <strong>Guardian Name:</strong>
-                                <span><?php echo htmlspecialchars($student['guardian_name'] ?? 'N/A'); ?></span>
-                            </div>
-                            <div style="display: flex; justify-content:  space-between; padding: 12px; background: var(--light-color); border-radius: 8px;">
-                                <strong>Guardian Phone:</strong>
-                                <span><?php echo htmlspecialchars($student['guardian_phone'] ?? 'N/A'); ?></span>
-                            </div>
+                        <div class="detail-item">
+                            <label>Date of Birth</label>
+                            <p><?php echo !empty($student['date_of_birth']) ? date('F d, Y', strtotime($student['date_of_birth'])) : 'N/A'; ?></p>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h2>🎓 Academic Information</h2>
-                    </div>
-                    <div class="card-body">
-                        <div style="display: grid; gap: 15px;">
-                            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--light-color); border-radius: 8px;">
-                                <strong>Admission Date:</strong>
-                                <span><?php echo date('F d, Y', strtotime($student['admission_date'])); ?></span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--light-color); border-radius: 8px;">
-                                <strong>Status:</strong>
-                                <span class="badge badge-<?php echo $student['status']; ?>">
-                                    <?php echo ucfirst($student['status']); ?>
-                                </span>
-                            </div>
+                        <div class="detail-item">
+                            <label>Gender</label>
+                            <p><?php echo e($student['gender'] ?? 'N/A'); ?></p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Phone</label>
+                            <p><?php echo e($student['phone'] ?? 'N/A'); ?></p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Email</label>
+                            <p><?php echo e($student['email'] ?? 'N/A'); ?></p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Admission Date</label>
+                            <p><?php echo !empty($student['admission_date']) ? date('F d, Y', strtotime($student['admission_date'])) : 'N/A'; ?></p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Guardian Name</label>
+                            <p><?php echo e($student['guardian_name'] ?? 'N/A'); ?></p>
+                        </div>
+                        <div class="detail-item">
+                            <label>Guardian Phone</label>
+                            <p><?php echo e($student['guardian_phone'] ?? 'N/A'); ?></p>
+                        </div>
+                        <div class="detail-item detail-item-full">
+                            <label>Address</label>
+                            <p><?php echo e($student['address'] ?? 'N/A'); ?></p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card" style="margin-top: 24px;">
+            <div class="card enrollment-card">
                 <div class="card-header"><h2>Enrollments</h2></div>
                 <div class="card-body">
                     <?php if (hasRole('admin')): ?>
-                        <form method="POST" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:20px;">
+                        <form method="POST" class="attendance-toolbar enrollment-form">
                             <?php csrfField(); ?>
                             <div class="form-group" style="min-width:240px;margin:0;">
                                 <label for="class_id">Class</label>
-                                <select id="class_id" name="class_id" required>
+                                <select id="class_id" name="class_id" class="form-control" required>
                                     <option value="">Select class</option>
                                     <?php foreach ($classes as $class): ?>
                                         <option value="<?php echo $class['id']; ?>">
@@ -210,19 +225,21 @@ if (hasRole('admin')) {
                     <?php endif; ?>
 
                     <?php if ($enrollments): ?>
-                        <table class="data-table">
-                            <thead><tr><th>Class</th><th>Course</th><th>Date</th><th>Status</th></tr></thead>
-                            <tbody>
-                                <?php foreach ($enrollments as $enrollment): ?>
-                                    <tr>
-                                        <td><?php echo e($enrollment['class_name'] . ' ' . ($enrollment['section'] ?? '')); ?></td>
-                                        <td><?php echo e($enrollment['course_name'] ?? 'N/A'); ?></td>
-                                        <td><?php echo e($enrollment['enrollment_date']); ?></td>
-                                        <td><?php echo e($enrollment['status']); ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead><tr><th>Class</th><th>Course</th><th>Date</th><th>Status</th></tr></thead>
+                                <tbody>
+                                    <?php foreach ($enrollments as $enrollment): ?>
+                                        <tr>
+                                            <td><?php echo e($enrollment['class_name'] . ' ' . ($enrollment['section'] ?? '')); ?></td>
+                                            <td><?php echo e($enrollment['course_name'] ?? 'N/A'); ?></td>
+                                            <td><?php echo e($enrollment['enrollment_date']); ?></td>
+                                            <td><span class="badge badge-<?php echo e($enrollment['status']); ?>"><?php echo e($enrollment['status']); ?></span></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     <?php else: ?>
                         <div class="empty-state">
                             <h3>No Enrollments</h3>
