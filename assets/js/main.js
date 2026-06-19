@@ -1,46 +1,59 @@
 // Student Management System - Main JavaScript
 document.addEventListener('DOMContentLoaded', function() {
-    
-    // ===========================================
-    // MENU TOGGLE
-    // ===========================================
+
+
+    // MOBILE HAMBURGER MENU
     const menuToggle = document.getElementById('menuToggle');
     const sidebar = document.getElementById('sidebar');
-    const mainContent = document.querySelector('.main-content');
-    
-    if (menuToggle && sidebar) {
-        menuToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('hidden');
-            mainContent.classList. toggle('expanded');
-            
-            // Save state to localStorage
-            if (sidebar.classList.contains('hidden')) {
-                localStorage.setItem('sidebarHidden', 'true');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    function openSidebar() {
+        if (!sidebar || !sidebarOverlay) return;
+        sidebar.classList.add('mobile-open');
+        sidebarOverlay.classList.add('active');
+        document.body.classList.add('sidebar-open');
+        menuToggle?.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeSidebar() {
+        if (!sidebar || !sidebarOverlay) return;
+        sidebar.classList.remove('mobile-open');
+        sidebarOverlay.classList.remove('active');
+        document.body.classList.remove('sidebar-open');
+        menuToggle?.setAttribute('aria-expanded', 'false');
+    }
+
+    if (menuToggle && sidebar && sidebarOverlay) {
+        menuToggle.setAttribute('aria-expanded', 'false');
+        menuToggle.addEventListener('click', function () {
+            if (sidebar.classList.contains('mobile-open')) {
+                closeSidebar();
             } else {
-                localStorage.setItem('sidebarHidden', 'false');
+                openSidebar();
             }
         });
-        
-        // Restore sidebar state
-        if (localStorage.getItem('sidebarHidden') === 'true') {
-            sidebar. classList.add('hidden');
-            mainContent.classList.add('expanded');
-        }
+
+        sidebarOverlay.addEventListener('click', closeSidebar);
     }
     
     // ===========================================
     // ACTIVE NAVIGATION LINK
     // ===========================================
     const currentPath = window.location.pathname;
-    const navLinks = document. querySelectorAll('. nav-link');
-    
+    const navLinks = document.querySelectorAll('.nav-link');
     navLinks.forEach(link => {
         const href = link.getAttribute('href');
-        if (href && currentPath.includes(href)) {
+        if (href && currentPath.includes(new URL(href, window.location.origin).pathname)) {
             link.classList.add('active');
         }
+
+        link.addEventListener('click', function () {
+            if (window.innerWidth <= 768) {
+                closeSidebar();
+            }
+        });
     });
-    
+
     // ===========================================
     // FORM VALIDATION
     // ===========================================
@@ -339,25 +352,9 @@ document.addEventListener('DOMContentLoaded', function() {
         window.print();
     };
     
-    // ===========================================
-    // MOBILE RESPONSIVE MENU
-    // ===========================================
-    if (window.innerWidth <= 768) {
-        if (sidebar) {
-            sidebar. classList.add('hidden');
-            mainContent?. classList.add('expanded');
-        }
-    }
-    
     window.addEventListener('resize', function() {
-        if (window.innerWidth <= 768) {
-            sidebar?.classList.add('hidden');
-            mainContent?.classList.add('expanded');
-        } else {
-            if (localStorage.getItem('sidebarHidden') !== 'true') {
-                sidebar?.classList.remove('hidden');
-                mainContent?.classList.remove('expanded');
-            }
+        if (window.innerWidth > 768) {
+            closeSidebar();
         }
     });
     

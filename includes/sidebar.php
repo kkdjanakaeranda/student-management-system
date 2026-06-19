@@ -1,3 +1,4 @@
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 <aside class="sidebar" id="sidebar">
     <nav class="sidebar-nav">
         <ul>
@@ -78,3 +79,4 @@
         </ul>
     </nav>
 </aside>
+

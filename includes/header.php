@@ -250,12 +250,49 @@ $roleClass = $roleColors[$_SESSION['role'] ?? 'student'] ?? 'role-student';
                 padding: 0.5rem 0.75rem;
                 font-size: 0.75rem;
             }
+
+        }
+
+        .menu-toggle {
+            display: none;
+            width: 42px;
+            height: 42px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            cursor: pointer;
+            flex: 0 0 auto;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 5px;
+            padding: 0;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            border-radius: 999px;
+            background: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: inline-flex;
+            }
         }
     </style>
 </head>
 <body>
     <header class="header">
         <div class="header-left">
+            <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open navigation menu" aria-controls="sidebar">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
             <div class="header-logo">🎓</div>
             <h1>Student Management System</h1>
         </div>
