@@ -77,28 +77,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
             
             <div class="card">
-                <div class="card-body">
-                    <form method="POST" class="form-grid">
+                <div class="card-header">
+                    <h2>Class Information</h2>
+                </div>
+                <div class="card-body" style="padding: 2rem;">
+                    <form method="POST">
                         <?php csrfField(); ?>
                         <div class="form-section">
-                            <h3>📋 Class Information</h3>
-                            
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="class_name">Class Name <span>*</span></label>
-                                    <input type="text" id="class_name" name="class_name" required>
+                                    <input class="form-control" type="text" id="class_name" name="class_name" required>
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="section">Section</label>
-                                    <input type="text" id="section" name="section">
+                                    <input class="form-control" type="text" id="section" name="section">
                                 </div>
                             </div>
                             
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="course_id">Course</label>
-                                    <select id="course_id" name="course_id">
+                                    <select class="form-control" id="course_id" name="course_id">
                                         <option value="">Select Course</option>
                                         <?php foreach ($courses as $course): ?>
                                             <option value="<?php echo $course['id']; ?>">
@@ -110,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 
                                 <div class="form-group">
                                     <label for="teacher_id">Class Teacher</label>
-                                    <select id="teacher_id" name="teacher_id">
+                                    <select class="form-control" id="teacher_id" name="teacher_id">
                                         <option value="">Select Teacher</option>
                                         <?php foreach ($teachers as $teacher): ?>
                                             <option value="<?php echo $teacher['id']; ?>">
@@ -124,12 +125,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="academic_year">Academic Year</label>
-                                    <input type="text" id="academic_year" name="academic_year" placeholder="e.g., 2024-2025">
+                                    <input class="form-control" type="text" id="academic_year" name="academic_year" placeholder="e.g., 2024-2025">
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="room_number">Room Number</label>
-                                    <input type="text" id="room_number" name="room_number">
+                                    <input class="form-control" type="text" id="room_number" name="room_number">
                                 </div>
                             </div>
                         </div>

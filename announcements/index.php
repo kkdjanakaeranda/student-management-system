@@ -20,7 +20,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id']) && hasRo
     }
 }
 
+$allowedFilters = ['all', 'students', 'teachers'];
 $filter = $_GET['filter'] ?? 'all';
+if (!in_array($filter, $allowedFilters, true)) {
+    $filter = 'all';
+}
 $search = trim($_GET['search'] ?? '');
 
 $query = "SELECT a.*, u.username
@@ -30,7 +34,7 @@ $where = [];
 $params = [];
 
 if ($filter !== 'all') {
-    $where[] = "a.target_audience = :filter";
+    $where[] = "(a.target_audience = :filter OR a.target_audience = 'all')";
     $params[':filter'] = $filter;
 }
 
@@ -83,7 +87,10 @@ $announcements = $stmt->fetchAll();
             <?php endif; ?>
 
             <div class="card">
-                <div class="card-body" style="padding: 1.5rem;">
+                <div class="card-header">
+                    <h2>Filter Announcements</h2>
+                </div>
+                <div class="card-body" style="padding: 2rem;">
                     <form method="GET" style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;">
                         <div class="form-group" style="flex:1;min-width:240px;margin-bottom:0;">
                             <label for="search">Search</label>
@@ -95,9 +102,9 @@ $announcements = $stmt->fetchAll();
                         <div class="form-group" style="min-width:220px;margin-bottom:0;">
                             <label for="filter">Audience</label>
                             <select id="filter" name="filter" class="form-control">
-                                <option value="all" <?php echo $filter === 'all' ? 'selected' : ''; ?>>All audiences</option>
-                                <option value="students" <?php echo $filter === 'students' ? 'selected' : ''; ?>>Students only</option>
-                                <option value="teachers" <?php echo $filter === 'teachers' ? 'selected' : ''; ?>>Teachers only</option>
+                                <option value="all" <?php echo $filter === 'all' ? 'selected' : ''; ?>>All announcements</option>
+                                <option value="students" <?php echo $filter === 'students' ? 'selected' : ''; ?>>Visible to students</option>
+                                <option value="teachers" <?php echo $filter === 'teachers' ? 'selected' : ''; ?>>Visible to teachers</option>
                             </select>
                         </div>
 

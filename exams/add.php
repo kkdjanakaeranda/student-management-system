@@ -99,21 +99,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
             
             <div class="card">
-                <div class="card-body">
-                    <form method="POST" class="form-grid">
+                <div class="card-header">
+                    <h2>Exam Information</h2>
+                </div>
+                <div class="card-body" style="padding: 2rem;">
+                    <form method="POST">
                         <?php csrfField(); ?>
                         <div class="form-section">
-                            <h3>📋 Exam Information</h3>
-                            
                             <div class="form-group">
                                 <label for="exam_name">Exam Name <span>*</span></label>
-                                <input type="text" id="exam_name" name="exam_name" required>
+                                <input class="form-control" type="text" id="exam_name" name="exam_name" required>
                             </div>
                             
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="exam_type">Exam Type <span>*</span></label>
-                                    <select id="exam_type" name="exam_type" required>
+                                    <select class="form-control" id="exam_type" name="exam_type" required>
                                         <option value="">Select Type</option>
                                         <option value="midterm">Midterm</option>
                                         <option value="final">Final</option>
@@ -124,14 +125,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 
                                 <div class="form-group">
                                     <label for="exam_date">Exam Date <span>*</span></label>
-                                    <input type="date" id="exam_date" name="exam_date" required>
+                                    <input class="form-control" type="date" id="exam_date" name="exam_date" required>
                                 </div>
                             </div>
                             
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="class_id">Class <span>*</span></label>
-                                    <select id="class_id" name="class_id" required>
+                                    <select class="form-control" id="class_id" name="class_id" required>
                                         <option value="">Select Class</option>
                                         <?php foreach ($classes as $class): ?>
                                             <option value="<?php echo $class['id']; ?>">
@@ -143,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 
                                 <div class="form-group">
                                     <label for="subject_id">Subject <span>*</span></label>
-                                    <select id="subject_id" name="subject_id" required>
+                                    <select class="form-control" id="subject_id" name="subject_id" required>
                                         <option value="">Select Subject</option>
                                         <?php foreach ($subjects as $subject): ?>
                                             <option value="<?php echo $subject['id']; ?>">
@@ -157,12 +158,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="total_marks">Total Marks <span>*</span></label>
-                                    <input type="number" id="total_marks" name="total_marks" required>
+                                    <input class="form-control" type="number" id="total_marks" name="total_marks" required>
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="duration">Duration</label>
-                                    <input type="text" id="duration" name="duration" placeholder="e. g., 2 hours">
+                                    <input class="form-control" type="text" id="duration" name="duration" placeholder="e. g., 2 hours">
                                 </div>
                             </div>
                         </div>

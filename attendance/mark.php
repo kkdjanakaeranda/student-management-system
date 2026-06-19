@@ -117,6 +117,9 @@ if ($classId) {
         <?php endif; ?>
 
         <div class="card" style="margin-bottom:20px">
+            <div class="card-header">
+                <h2>Select Class</h2>
+            </div>
             <div class="card-body">
                 <form method="GET" action="" style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap">
                     <div class="form-group" style="margin:0;flex:1;min-width:200px">
@@ -148,7 +151,7 @@ if ($classId) {
                     — <?php echo date('l, M d Y', strtotime($selectedDate)); ?></h2>
                 <span class="badge badge-active"><?php echo count($students); ?> enrolled students</span>
             </div>
-            <div class="card-body">
+            <div class="card-body" style="padding: 2rem;">
                 <?php if (empty($students)): ?>
                     <div class="empty-state">
                         <div class="empty-state-icon">👥</div>

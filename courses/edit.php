@@ -101,12 +101,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <main class="main-content">
             <div class="page-header">
                 <div>
-                    <h1>✏️ Edit Course</h1>
+                    <h1>Edit Course</h1>
                     <p class="page-description">Update course information</p>
                 </div>
                 <div style="display: flex; gap: 0.5rem;">
-                    <a href="view.php? id=<?php echo $course['id']; ?>" class="btn btn-info">👁️ View Details</a>
-                    <a href="index.php" class="btn btn-secondary">← Back to List</a>
+                    <a href="view.php?id=<?php echo $course['id']; ?>" class="btn btn-info">View Details</a>
+                    <a href="index.php" class="btn btn-secondary">Back to List</a>
                 </div>
             </div>
             
@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             <div class="card">
                 <div class="card-header">
-                    <h2>📋 Course Information</h2>
+                    <h2>Course Information</h2>
                     <span class="badge badge-<?php echo $course['status']; ?>">
                         <?php echo ucfirst($course['status']); ?>
                     </span>
@@ -233,18 +233,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         <!-- Form Actions -->
                         <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">
-                                <span>💾</span>
-                                <span>Update Course</span>
-                            </button>
-                            <a href="view.php?id=<?php echo $course['id']; ?>" class="btn btn-info">
-                                <span>👁️</span>
-                                <span>View Details</span>
-                            </a>
-                            <a href="index.php" class="btn btn-secondary">
-                                <span>❌</span>
-                                <span>Cancel</span>
-                            </a>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="view.php?id=<?php echo $course['id']; ?>" class="btn btn-info">View Details</a>
+                            <a href="index.php" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>

@@ -107,11 +107,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
             
             <div class="card">
-                <div class="card-body">
-                    <form method="POST" enctype="multipart/form-data" class="form-grid">
+                <div class="card-header">
+                    <h2>Teacher Information</h2>
+                </div>
+                <div class="card-body" style="padding: 2rem;">
+                    <form method="POST" enctype="multipart/form-data">
                         <?php csrfField(); ?>
                         <div class="form-section">
-                            <h3>📋 Personal Information</h3>
+                            <h3>Personal Information</h3>
                             
                             <div class="form-group">
                                 <label for="teacher_id" class="form-group">Teacher ID <span>*</span></label>
@@ -171,7 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         
                         <div class="form-section">
-                            <h3>🎓 Professional Information</h3>
+                            <h3>Professional Information</h3>
                             
                             <div class="form-group">
                                 <label for="qualification">Qualification</label>
@@ -190,7 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         
                         <div class="form-section">
-                            <h3>🔐 Login Credentials</h3>
+                            <h3>Login Credentials</h3>
                             
                             <div class="form-group">
                                 <label for="password">Password <span>*</span></label>

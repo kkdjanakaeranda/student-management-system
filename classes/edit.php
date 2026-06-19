@@ -84,10 +84,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <main class="main-content">
             <div class="page-header">
                 <div>
-                    <h1>✏️ Edit Class</h1>
-                    <p>Update class information</p>
+                    <h1>Edit Class</h1>
+                    <p class="page-description">Update class information</p>
                 </div>
-                <a href="index.php" class="btn btn-secondary">← Back to List</a>
+                <div style="display: flex; gap: 0.5rem;">
+                    <a href="index.php" class="btn btn-secondary">Back to List</a>
+                </div>
             </div>
             
             <?php if ($error): ?>
@@ -95,28 +97,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
             
             <div class="card">
-                <div class="card-body">
-                    <form method="POST" class="form-grid">
+                <div class="card-header">
+                    <h2>Class Information</h2>
+                    <span class="badge badge-<?php echo $class['status']; ?>">
+                        <?php echo ucfirst($class['status']); ?>
+                    </span>
+                </div>
+                <div class="card-body" style="padding: 2rem;">
+                    <form method="POST">
                         <?php csrfField(); ?>
-                        <div class="form-section">
-                            <h3>📋 Class Information</h3>
-                            
+                        <!-- Class Information -->
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="class_name">Class Name <span>*</span></label>
-                                    <input type="text" id="class_name" name="class_name" value="<?php echo htmlspecialchars($class['class_name']); ?>" required>
+                                    <input class="form-control" type="text" id="class_name" name="class_name" value="<?php echo htmlspecialchars($class['class_name']); ?>" required>
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="section">Section</label>
-                                    <input type="text" id="section" name="section" value="<?php echo htmlspecialchars($class['section']); ?>">
+                                    <input class="form-control" type="text" id="section" name="section" value="<?php echo htmlspecialchars($class['section']); ?>">
                                 </div>
                             </div>
                             
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="course_id">Course</label>
-                                    <select id="course_id" name="course_id">
+                                    <select class="form-control" id="course_id" name="course_id">
                                         <option value="">Select Course</option>
                                         <?php foreach ($courses as $course): ?>
                                             <option value="<?php echo $course['id']; ?>" <?php echo $class['course_id'] == $course['id'] ? 'selected' : ''; ?>>
@@ -128,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 
                                 <div class="form-group">
                                     <label for="teacher_id">Class Teacher</label>
-                                    <select id="teacher_id" name="teacher_id">
+                                    <select class="form-control" id="teacher_id" name="teacher_id">
                                         <option value="">Select Teacher</option>
                                         <?php foreach ($teachers as $teacher): ?>
                                             <option value="<?php echo $teacher['id']; ?>" <?php echo $class['teacher_id'] == $teacher['id'] ? 'selected' :  ''; ?>>
@@ -142,27 +148,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="academic_year">Academic Year</label>
-                                    <input type="text" id="academic_year" name="academic_year" value="<?php echo htmlspecialchars($class['academic_year']); ?>">
+                                    <input class="form-control" type="text" id="academic_year" name="academic_year" value="<?php echo htmlspecialchars($class['academic_year']); ?>">
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="room_number">Room Number</label>
-                                    <input type="text" id="room_number" name="room_number" value="<?php echo htmlspecialchars($class['room_number']); ?>">
+                                    <input class="form-control" type="text" id="room_number" name="room_number" value="<?php echo htmlspecialchars($class['room_number']); ?>">
                                 </div>
                             </div>
                             
                             <div class="form-group">
                                 <label for="status">Status</label>
-                                <select id="status" name="status">
+                                <select class="form-control" id="status" name="status">
                                     <option value="active" <?php echo $class['status'] == 'active' ? 'selected' :  ''; ?>>Active</option>
                                     <option value="inactive" <?php echo $class['status'] == 'inactive' ? 'selected' :  ''; ?>>Inactive</option>
                                 </select>
-                            </div>
                         </div>
                         
                         <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">💾 Update Class</button>
-                            <a href="index.php" class="btn btn-secondary">❌ Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="index.php" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>
@@ -170,6 +175,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </main>
     </div>
     
-    <script src="../assets/js/main. js"></script>
+    <script src="../assets/js/main.js"></script>
 </body>
 </html>

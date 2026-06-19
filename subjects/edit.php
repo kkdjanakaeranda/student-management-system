@@ -79,10 +79,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <main class="main-content">
             <div class="page-header">
                 <div>
-                    <h1>✏️ Edit Subject</h1>
-                    <p>Update subject information</p>
+                    <h1>Edit Subject</h1>
+                    <p class="page-description">Update subject information</p>
                 </div>
-                <a href="index.php" class="btn btn-secondary">← Back to List</a>
+                <div style="display: flex; gap: 0.5rem;">
+                    <a href="index.php" class="btn btn-secondary">Back to List</a>
+                </div>
             </div>
             
             <?php if ($error): ?>
@@ -90,33 +92,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
             
             <div class="card">
-                <div class="card-body">
-                    <form method="POST" class="form-grid">
+                <div class="card-header">
+                    <h2>Subject Information</h2>
+                </div>
+                <div class="card-body" style="padding: 2rem;">
+                    <form method="POST">
                         <?php csrfField(); ?>
-                        <div class="form-section">
-                            <h3>📋 Subject Information</h3>
-                            
+                        <!-- Subject Information -->
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="subject_code">Subject Code <span>*</span></label>
-                                    <input type="text" id="subject_code" name="subject_code" value="<?php echo htmlspecialchars($subject['subject_code']); ?>" required>
+                                    <input class="form-control" type="text" id="subject_code" name="subject_code" value="<?php echo htmlspecialchars($subject['subject_code']); ?>" required>
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="subject_name">Subject Name <span>*</span></label>
-                                    <input type="text" id="subject_name" name="subject_name" value="<?php echo htmlspecialchars($subject['subject_name']); ?>" required>
+                                    <input class="form-control" type="text" id="subject_name" name="subject_name" value="<?php echo htmlspecialchars($subject['subject_name']); ?>" required>
                                 </div>
                             </div>
                             
                             <div class="form-group">
                                 <label for="description">Description</label>
-                                <textarea id="description" name="description" rows="4"><?php echo htmlspecialchars($subject['description']); ?></textarea>
+                                <textarea class="form-control" id="description" name="description" rows="4"><?php echo htmlspecialchars($subject['description']); ?></textarea>
                             </div>
                             
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="class_id">Class</label>
-                                    <select id="class_id" name="class_id">
+                                    <select class="form-control" id="class_id" name="class_id">
                                         <option value="">Select Class</option>
                                         <?php foreach ($classes as $class): ?>
                                             <option value="<?php echo $class['id']; ?>" <?php echo $subject['class_id'] == $class['id'] ? 'selected' : ''; ?>>
@@ -128,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 
                                 <div class="form-group">
                                     <label for="teacher_id">Teacher</label>
-                                    <select id="teacher_id" name="teacher_id">
+                                    <select class="form-control" id="teacher_id" name="teacher_id">
                                         <option value="">Select Teacher</option>
                                         <?php foreach ($teachers as $teacher): ?>
                                             <option value="<?php echo $teacher['id']; ?>" <?php echo $subject['teacher_id'] == $teacher['id'] ? 'selected' : ''; ?>>
@@ -137,12 +140,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
-                            </div>
                         </div>
                         
                         <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">💾 Update Subject</button>
-                            <a href="index.php" class="btn btn-secondary">❌ Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="index.php" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>

@@ -144,7 +144,10 @@ if ($examId) {
         <?php endif; ?>
 
         <div class="card" style="margin-bottom:20px">
-            <div class="card-body">
+            <div class="card-header">
+                <h2>Select Exam</h2>
+            </div>
+            <div class="card-body" style="padding: 2rem;">
                 <form method="GET" action="">
                     <div class="form-group" style="margin:0">
                         <label>Select Exam</label>
@@ -172,7 +175,7 @@ if ($examId) {
                 <h2><?php echo htmlspecialchars($selectedExam['exam_name']); ?></h2>
                 <span>Total marks: <?php echo (int)$selectedExam['total_marks']; ?></span>
             </div>
-            <div class="card-body">
+            <div class="card-body" style="padding: 2rem;">
                 <?php if (empty($students)): ?>
                     <div class="empty-state">
                         <div class="empty-state-icon">👥</div>

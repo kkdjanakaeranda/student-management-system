@@ -886,10 +886,24 @@ select.form-control {
     margin-bottom: 1rem;
 }
 
+.form-section {
+    margin-bottom: 2rem;
+}
+
+.form-section h3 {
+    margin: 0 0 1.5rem;
+    font-size: 1.125rem;
+    color: var(--dark-color);
+}
+
+.form-section:last-of-type {
+    margin-bottom: 0;
+}
+
 .form-actions {
     display: flex;
     gap: 1rem;
-    margin-top: 2. 5rem;
+    margin-top: 2.5rem;
     padding-top: 2rem;
     border-top: 2px solid var(--border-color);
 }

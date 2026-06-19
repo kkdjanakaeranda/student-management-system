@@ -167,11 +167,11 @@ if ($role === 'student' && $linkedId) {
         </div>
         <div class="card" style="margin-bottom:24px">
             <div class="card-header"><h2>🎯 Quick Actions</h2></div>
-            <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
-                <a href="students/add.php"      class="btn btn-primary"  style="width:100%">➕ Add Student</a>
-                <a href="teachers/add.php"      class="btn btn-success"  style="width:100%">➕ Add Teacher</a>
-                <a href="classes/add.php"        class="btn btn-info"     style="width:100%">➕ Create Class</a>
-                <a href="announcements/add.php"  class="btn btn-warning"  style="width:100%">📢 Post Announcement</a>
+            <div class="card-body" style="padding: 2rem; display:flex; gap:1rem; flex-wrap:wrap">
+                <a href="students/add.php"      class="btn btn-primary">➕ Add Student</a>
+                <a href="teachers/add.php"      class="btn btn-success">➕ Add Teacher</a>
+                <a href="classes/add.php"        class="btn btn-info">➕ Create Class</a>
+                <a href="announcements/add.php"  class="btn btn-warning">📢 Post Announcement</a>
             </div>
         </div>
 

@@ -67,12 +67,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
             
             <div class="card">
-                <div class="card-body">
-                    <form method="POST" class="form-grid">
+                <div class="card-header">
+                    <h2>Announcement Information</h2>
+                </div>
+                <div class="card-body" style="padding: 2rem;">
+                    <form method="POST">
                         <?php csrfField(); ?>
                         <div class="form-section">
-                            <h3>Announcement Information</h3>
-                            
                             <div class="form-group">
                                 <label for="title" >Title <span>*</span></label>
                                 <input type="text" id="title" name="title" class="form-control" required>

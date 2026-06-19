@@ -107,10 +107,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <main class="main-content">
             <div class="page-header">
                 <div>
-                    <h1>✏️ Edit Teacher</h1>
-                    <p>Update teacher information</p>
+                    <h1>Edit Teacher</h1>
+                    <p class="page-description">Update teacher information</p>
                 </div>
-                <a href="index.php" class="btn btn-secondary">← Back to List</a>
+                <div style="display: flex; gap: 0.5rem;">
+                    <a href="view.php?id=<?php echo $id; ?>" class="btn btn-info">View Details</a>
+                    <a href="index.php" class="btn btn-secondary">Back to List</a>
+                </div>
             </div>
             
             <?php if ($error): ?>
@@ -118,33 +121,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
             
             <div class="card">
-                <div class="card-body">
-                    <form method="POST" enctype="multipart/form-data" class="form-grid">
+                <div class="card-header">
+                    <h2>Teacher Information</h2>
+                    <span class="badge badge-<?php echo $teacher['status']; ?>">
+                        <?php echo ucfirst($teacher['status']); ?>
+                    </span>
+                </div>
+                <div class="card-body" style="padding: 2rem;">
+                    <form method="POST" enctype="multipart/form-data">
                         <?php csrfField(); ?>
-                        <div class="form-section">
-                            <h3>📋 Personal Information</h3>
-                            
+                        <!-- Personal Information -->
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="first_name">First Name <span>*</span></label>
-                                    <input type="text" id="first_name" name="first_name" value="<?php echo htmlspecialchars($teacher['first_name']); ?>" required>
+                                    <input class="form-control" type="text" id="first_name" name="first_name" value="<?php echo htmlspecialchars($teacher['first_name']); ?>" required>
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="last_name">Last Name <span>*</span></label>
-                                    <input type="text" id="last_name" name="last_name" value="<?php echo htmlspecialchars($teacher['last_name']); ?>" required>
+                                    <input class="form-control" type="text" id="last_name" name="last_name" value="<?php echo htmlspecialchars($teacher['last_name']); ?>" required>
                                 </div>
                             </div>
                             
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="date_of_birth">Date of Birth <span>*</span></label>
-                                    <input type="date" id="date_of_birth" name="date_of_birth" value="<?php echo $teacher['date_of_birth']; ?>" required>
+                                    <input class="form-control" type="date" id="date_of_birth" name="date_of_birth" value="<?php echo $teacher['date_of_birth']; ?>" required>
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="gender">Gender <span>*</span></label>
-                                    <select id="gender" name="gender" required>
+                                    <select class="form-control" id="gender" name="gender" required>
                                         <option value="Male" <?php echo $teacher['gender'] == 'Male' ? 'selected' : ''; ?>>Male</option>
                                         <option value="Female" <?php echo $teacher['gender'] == 'Female' ? 'selected' : ''; ?>>Female</option>
                                         <option value="Other" <?php echo $teacher['gender'] == 'Other' ? 'selected' : ''; ?>>Other</option>
@@ -155,54 +162,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="phone">Phone</label>
-                                    <input type="tel" id="phone" name="phone" value="<?php echo htmlspecialchars($teacher['phone']); ?>">
+                                    <input class="form-control" type="tel" id="phone" name="phone" value="<?php echo htmlspecialchars($teacher['phone']); ?>">
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="email">Email <span>*</span></label>
-                                    <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($teacher['email']); ?>" required>
+                                    <input class="form-control" type="email" id="email" name="email" value="<?php echo htmlspecialchars($teacher['email']); ?>" required>
                                 </div>
                             </div>
                             
                             <div class="form-group">
                                 <label for="address">Address</label>
-                                <textarea id="address" name="address" rows="3"><?php echo htmlspecialchars($teacher['address']); ?></textarea>
+                                <textarea class="form-control" id="address" name="address" rows="3"><?php echo htmlspecialchars($teacher['address']); ?></textarea>
                             </div>
                             
-                            <div class="form-group">
-                                <label for="status">Status</label>
-                                <select id="status" name="status">
-                                    <option value="active" <?php echo $teacher['status'] == 'active' ? 'selected' : ''; ?>>Active</option>
-                                    <option value="inactive" <?php echo $teacher['status'] == 'inactive' ? 'selected' : ''; ?>>Inactive</option>
-                                </select>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="status">Status</label>
+                                    <select class="form-control" id="status" name="status">
+                                        <option value="active" <?php echo $teacher['status'] == 'active' ? 'selected' : ''; ?>>Active</option>
+                                        <option value="inactive" <?php echo $teacher['status'] == 'inactive' ? 'selected' : ''; ?>>Inactive</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="photo">Photo</label>
+                                    <?php if ($teacher['photo']): ?>
+                                        <img src="../uploads/teachers/<?php echo $teacher['photo']; ?>" style="width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px;">
+                                    <?php endif; ?>
+                                    <input class="form-control" type="file" id="photo" name="photo" accept="image/*">
+                                </div>
                             </div>
-                            
-                            <div class="form-group">
-                                <label for="photo">Photo</label>
-                                <?php if ($teacher['photo']): ?>
-                                    <img src="../uploads/teachers/<?php echo $teacher['photo']; ?>" style="width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px;">
-                                <?php endif; ?>
-                                <input type="file" id="photo" name="photo" accept="image/*">
-                            </div>
-                        </div>
-                        
-                        <div class="form-section">
-                            <h3>🎓 Professional Information</h3>
-                            
+                        <!-- Professional Information -->
+                        <div class="form-row">
                             <div class="form-group">
                                 <label for="qualification">Qualification</label>
-                                <input type="text" id="qualification" name="qualification" value="<?php echo htmlspecialchars($teacher['qualification']); ?>">
+                                <input class="form-control" type="text" id="qualification" name="qualification" value="<?php echo htmlspecialchars($teacher['qualification']); ?>">
                             </div>
                             
                             <div class="form-group">
                                 <label for="specialization">Specialization</label>
-                                <input type="text" id="specialization" name="specialization" value="<?php echo htmlspecialchars($teacher['specialization']); ?>">
+                                <input class="form-control" type="text" id="specialization" name="specialization" value="<?php echo htmlspecialchars($teacher['specialization']); ?>">
                             </div>
                         </div>
                         
                         <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">💾 Update Teacher</button>
-                            <a href="view.php?id=<?php echo $id; ?>" class="btn btn-secondary">❌ Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="view.php?id=<?php echo $id; ?>" class="btn btn-info">View Details</a>
+                            <a href="view.php?id=<?php echo $id; ?>" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>
