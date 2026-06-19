@@ -129,7 +129,7 @@ if ($examId) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enter Grades — <?php echo SITE_NAME; ?></title>
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css?v=<?php echo filemtime('../assets/css/style.css'); ?>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -222,7 +222,7 @@ if ($examId) {
         <?php endif; ?>
     </main>
 </div>
-<script src="../assets/js/main.js"></script>
+<script src="../assets/js/main.js?v=<?php echo filemtime('../assets/js/main.js'); ?>"></script>
 <script>
 const gradeScale=[[90,'A+'],[80,'A'],[70,'B+'],[60,'B'],[50,'C'],[40,'D'],[0,'F']];
 function pctToGrade(p){for(const[t,g]of gradeScale)if(p>=t)return g;return'F';}

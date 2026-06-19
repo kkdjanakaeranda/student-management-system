@@ -6,9 +6,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const menuToggle = document.getElementById('menuToggle');
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const mainContent = document.querySelector('.main-content');
+
+    sidebar?.classList.remove('hidden');
+    mainContent?.classList.remove('expanded');
+    localStorage.removeItem('sidebarHidden');
 
     function openSidebar() {
         if (!sidebar || !sidebarOverlay) return;
+        sidebar.classList.remove('hidden');
         sidebar.classList.add('mobile-open');
         sidebarOverlay.classList.add('active');
         document.body.classList.add('sidebar-open');
