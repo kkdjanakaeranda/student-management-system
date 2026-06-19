@@ -524,6 +524,15 @@ body {
     overflow-x: auto;
 }
 
+.table-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    border: 2px solid var(--border-color);
+}
+
 /* ============================================
    STATS CARDS (Dashboard)
    ============================================ */
